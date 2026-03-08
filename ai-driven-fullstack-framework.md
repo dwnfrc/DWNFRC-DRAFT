@@ -11,6 +11,13 @@ Phase 0    Phase 1      Phase 2       Phase 3        Phase 4        Phase 5
 コンセプト → 壁打ち →  設計仕様書 →  開発ドキュメント →  実装準備 →    実装
 (人間)    (Claude.ai)  (Claude.ai)   (Claude.ai)    (Claude.ai)   (Claude Code)
           対話型       成果物型       成果物型        成果物型       コード生成
+
+                                        ┌─────────────────────────────────────┐
+                                        │  イテレーション（機能追加）            │
+Phase 5完了後 →                          │  壁打ち → Feature Design Doc        │
+                                        │  → 実装プロンプト生成 → Claude Code  │
+                                        └──────────┬──────────────────────────┘
+                                                   └→ 繰り返し
 ```
 
 **原則: 後工程に渡すのは常にファイル。口頭の合意ではなくMarkdownに書き出す。**
@@ -358,16 +365,142 @@ Claude Codeでプロンプト集を順に実行し、動くアプリケーショ
 
 ---
 
+## イテレーション: 機能追加サイクル
+
+Phase 5完了後、機能追加は以下のサイクルで回す。
+Phase 0〜5のフル構築に比べて軽量で、1機能あたり壁打ち〜実装まで短時間で完結する。
+
+### フロー
+
+```
+機能の着想
+    ↓
+壁打ち（Claude.ai）
+  入力: 設計仕様書 + System Design Doc + 機能の概要
+  出力: Feature Design Doc
+    ↓
+（必要なら）既存ドキュメント更新
+  System Design Doc: API追加、スキーマ変更
+  Dev Setup: 新しい依存やコマンド
+    ↓
+実装プロンプト生成（Claude.ai — 同じチャット）
+  入力: Feature Design Doc
+  出力: Claude Codeに投げるプロンプト
+    ↓
+Claude Codeで実装
+  入力: CLAUDE.md（自動） + 生成したプロンプト
+  1チャットで完結する粒度
+```
+
+### 壁打ちの始め方
+
+Claude.aiで新しいチャットを開き、設計仕様書とSystem Design Docを添付して開始する。
+
+#### プロンプトテンプレート
+
+```
+添付のドキュメントは既存プロジェクトの設計仕様書とSystem Design Docです。
+
+このプロジェクトに以下の機能を追加したいです:
+{追加したい機能の概要（2〜3行で十分）}
+
+docs/02-02_feature-design-doc.md のテンプレートに従って、
+Feature Design Docを作成するための壁打ちをさせてください。
+最終的な成果物は docs/features/ に配置します。
+
+特に以下を一緒に検討したいです:
+- 既存の画面・APIへの影響範囲
+- DBスキーマの変更が必要か
+- 新規画面・エンドポイントが必要か
+```
+
+#### 変更の大きさで分岐する
+
+| 変更規模 | 判断基準 | 進め方 |
+|---------|---------|--------|
+| **小** | 既存画面内の修正、APIパラメータ追加程度 | 壁打ちなしでFeature Design Docを直接書いてもOK |
+| **中** | 新規画面1〜2枚追加、スキーマ変更あり | 壁打ちでFeature Design Docを作成 → Claude Code 1チャットで実装 |
+| **大** | 新ロール追加、コアフロー変更 | 壁打ちでFeature Design Doc作成 → 設計仕様書・System Design Docも更新 → Claude Code 複数チャットで実装 |
+
+### Feature Design Doc作成後のプロンプト
+
+壁打ちが終わったら、同じチャットで成果物化する:
+
+```
+ここまでの議論をFeature Design Docとしてまとめてください。
+docs/02-02_feature-design-doc.md のテンプレート構成に従ってください。
+ファイル名は YYYYMMDD-HHMM_{機能名}.md としてください（例: 20260308-1430_notification.md）。
+配置先は docs/features/ です。
+```
+
+### 実装プロンプトの生成
+
+Feature Design Docができたら、同じチャットで続けてClaude Code用の実装プロンプトを生成する。
+これはPhase 4でclaude-code-prompts.mdを作ったのと同じ考え方で、
+「何を作るか」（Feature Design Doc）と「どう指示するか」（プロンプト）を分離する。
+
+```
+このFeature Design Docの内容を、Claude Codeに投げる実装プロンプトに変換してください。
+
+以下の原則に従ってください:
+- 実装の依存関係順に並べる（スキーマ変更 → API → UI）
+- 各ステップに明確なゴール（「〜が動く状態」）を定義
+- 参照すべきdocsファイルを明示
+- 変更規模が大きい場合はチャットを分割する粒度で
+
+出力形式: コードブロック内にプロンプトを記載（そのままClaude Codeにコピペできる形）
+```
+
+### Claude Codeでの実行
+
+生成されたプロンプトをClaude Codeの新しいチャットにコピペして実行する。
+
+Feature Design Doc自体は `docs/features/` に配置済みなので、
+プロンプト内で `docs/features/YYYYMMDD-HHMM_{機能名}.md を参照` と指示すればClaude Codeが読みに行ける。
+
+### Feature Design Docの管理
+
+ファイル名に `YYYYMMDD-HHMM_` プレフィックスをつけ、時系列を明示する。
+
+```
+docs/
+├── 設計仕様書.md
+├── 01_prd.md
+├── 02-01_system-design-doc.md
+├── 02-02_feature-design-doc.md        ← テンプレート（空のまま残す）
+├── features/                           ← 実際のFeature Design Docs（時系列順）
+│   ├── 20260310-0930_notification.md
+│   ├── 20260310-1500_email-digest.md
+│   ├── 20260318-1100_social-ranking.md
+│   └── 20260401-1400_ai-scoring.md
+├── 03_dev-setup.md
+├── 04_deployment-procedure.md
+└── 05_operation-runbook.md
+```
+
+### Tips
+
+- **壁打ちには必ず設計仕様書とSystem Design Docを添付する。** 既存の設計との整合性をClaude.aiに判断させるために必要
+- **小さな変更でも Feature Design Doc を残す。** タイムスタンプ付きで蓄積すれば変更履歴になる
+- **Feature Design Docをそのまま Claude Code に渡さない。** 設計書と実装指示は役割が違う。実装プロンプトを生成するステップを挟む
+- **スキーマ変更がある場合はマイグレーション計画を先に詰める。** 実装後に「マイグレーション通らない」となると手戻りが大きい
+- **既存ドキュメントの更新を忘れない。** 特にSystem Design DocのAPI一覧とスキーマ。放置するとドキュメントと実装が乖離する
+
+---
+
 ## フェーズ間の成果物フロー
 
 ```
-Phase 0         Phase 1          Phase 2             Phase 3               Phase 4          Phase 5
-concept.md → (チャット内合意) → 設計仕様書.md           → 01_prd.md            → CLAUDE.md     → コード
-                              screen_flow.mermaid     02-01_system-design    prompts.md
-                                                      02-02_feature-design
-                                                      03_dev-setup
-                                                      04_deployment
-                                                      05_operation
+Phase 0        Phase 1           Phase 2              Phase 3              Phase 4         Phase 5
+concept.md -> (chat consensus) -> design-spec.md   ->  01_prd.md           -> CLAUDE.md   -> code
+                                   screen_flow.mermaid  02-01_system-design    prompts.md
+                                                        02-02_feature-design
+                                                        03_dev-setup
+                                                        04_deployment
+                                                        05_operation
+
+Iteration (after Phase 5, repeat):
+idea --> brainstorm --> features/YYYYMMDD-HHMM_{name}.md --> impl prompt --> Claude Code --> update docs
 ```
 
 **重要: 各Phaseの成果物は次のPhaseの入力になる。飛ばすと品質が落ちる。**
@@ -383,6 +516,7 @@ concept.md → (チャット内合意) → 設計仕様書.md           → 01_p
 | `templates/p-4/CLAUDE.md` | 4 | Claude Code コンテキスト |
 | `templates/p-4/claude-code-prompts.md` | 4 | ステップ別プロンプト集 |
 | `templates/p-3/project-playbook`(PROJECT-PLAYBOOK テンプレート一式) | 3 | 開発ドキュメント |
+| PROJECT-PLAYBOOK `02-02` | イテレーション | Feature Design Doc |
 
 ---
 
@@ -396,3 +530,6 @@ concept.md → (チャット内合意) → 設計仕様書.md           → 01_p
 | CLAUDE.mdにステップ別指示を書く | 毎回読まれるので情報過多 | CLAUDE.md = 前提知識、prompts.md = 指示 |
 | 技術スタックを実装フェーズで変更 | ドキュメント全体の書き直し | Phase 3で確定させる |
 | 動作確認せずに次のステップへ進む | エラーが積み上がって修正困難 | 各ステップ後に必ず動作確認 |
+| 機能追加時に設計仕様書を添付せずに壁打ち | 既存設計と矛盾する設計が出てくる | 設計仕様書 + System Design Docを必ず添付 |
+| 機能追加後に既存ドキュメントを更新しない | ドキュメントと実装が乖離して次の機能追加時に混乱 | Feature Design Docと一緒に影響箇所のドキュメントも更新 |
+| Feature Design Docをそのまま Claude Code に投げる | 設計書には背景や検討経緯も含まれ、実装指示として冗長 | 実装プロンプトを生成してから渡す |
