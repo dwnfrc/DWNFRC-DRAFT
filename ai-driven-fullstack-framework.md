@@ -244,11 +244,11 @@ Claude Codeに渡す2つのファイルを作る: コンテキストファイル
 以下の2ファイルを作成してください。
 
 1. CLAUDE.md — Claude Codeが自動で読むプロジェクトのコンテキストファイル
-   - templates/CLAUDE.md の構成に従う
+   - templates/p-4/CLAUDE.md の構成に従う
    - Tech Stack、ディレクトリ構成、設計方針、コマンド一覧、docsへの参照パス
 
 2. claude-code-prompts.md — Claude Codeに1つずつ投げるステップ別プロンプト集
-   - templates/claude-code-prompts.md の構成に従う
+   - templates/p-4/claude-code-prompts.md の構成に従う
    - 各ステップに明確なゴール（「〜が動く状態」）
    - 依存関係順（骨格 → DB → API → 認証 → UI → インフラ → テスト）
    - 1ステップ = Claude Codeの1チャットで完結する粒度
@@ -450,6 +450,7 @@ Feature Design Docができたら、同じチャットで続けてClaude Code用
 - 変更規模が大きい場合はチャットを分割する粒度で
 
 出力形式: コードブロック内にプロンプトを記載（そのままClaude Codeにコピペできる形）
+(mdのフォーマットが崩れて1クリックでコピーできないことがあるので注意してください。)
 ```
 
 ### Claude Codeでの実行
