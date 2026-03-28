@@ -1,4 +1,4 @@
-# Dev Setup — ndays
+# Dev Setup — {サービス名}
 
 ## 1. 必要なツール・アカウント
 

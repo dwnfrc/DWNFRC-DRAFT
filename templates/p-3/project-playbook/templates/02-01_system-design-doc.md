@@ -1,4 +1,4 @@
-# System Design Doc — ndays
+# System Design Doc — {サービス名}
 
 ## 1. Goal / Non-Goal
 

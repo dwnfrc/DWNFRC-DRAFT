@@ -1,4 +1,4 @@
-# Operation Runbook — ndays
+# Operation Runbook — {サービス名}
 
 ## 1. モニタリング・ログ設計
 
