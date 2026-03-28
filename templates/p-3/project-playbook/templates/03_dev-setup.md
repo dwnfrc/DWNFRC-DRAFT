@@ -14,7 +14,7 @@
 
 ---
 
-## 2. リポジトリ構成（モノレポ）
+## 2. リポジトリ構成
 
 ```
 ```
@@ -28,7 +28,7 @@
 
 ---
 
-## 5. Terraform（IaC）
+## 5. IaC // 以下のセクション5〜8のコマンド例はGCP + Terraform + pnpm構成を前提にしています。実際の構成に応じて更新してください。
 
 ### ローカルでの使用
 
@@ -57,7 +57,7 @@ GitHub Actionsの `infra.yml` で自動化:
 # main.tf
 terraform {
   backend "gcs" {
-    bucket = "ndays-tfstate"
+    bucket = "{プロジェクト名}-tfstate"
     prefix = "terraform/state"
   }
 }
@@ -128,8 +128,8 @@ main ← develop ← feature/xxx
 |----------|------|
 | `main` | 本番反映。直接pushしない。 |
 | `develop` | 開発統合。feature/fixのマージ先。 |
-| `feature/xxx` | 新機能開発。例: `feature/trace-execution` |
-| `fix/xxx` | バグ修正。例: `fix/accuracy-calculation` |
+| `feature/xxx` | 新機能開発。例: `feature/add-search` |
+| `fix/xxx` | バグ修正。例: `fix/login-error` |
 
 ### PRルール
 

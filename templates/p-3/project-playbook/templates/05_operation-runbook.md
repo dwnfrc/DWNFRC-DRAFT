@@ -30,14 +30,14 @@
 **対処:**
 - min-instances=1 に設定（コスト増）
 - または許容する（ポートフォリオ用途なら問題なし）
-- Drizzleの軽量バンドルにより、Prismaよりコールドスタートは改善されている
+- 軽量なORMを使用することでコールドスタートを改善できる
 
 ```bash
 # Terraformで変更する場合: cloud-run.tf の min_instance_count を変更
 terraform apply -var-file=environments/production.tfvars
 
 # CLIで直接変更する場合
-gcloud run services update ndays-api-prod --min-instances=1
+gcloud run services update {APIサービス名} --min-instances=1
 ```
 
 ### Cloud SQL 接続エラー
@@ -50,21 +50,21 @@ gcloud run services update ndays-api-prod --min-instances=1
 3. Cloud SQL Auth Proxy が正しく設定されているか確認
 
 ```bash
-gcloud sql instances describe ndays-db --format="value(state)"
+gcloud sql instances describe {DBインスタンス名} --format="value(state)"
 ```
 
-### Drizzle マイグレーションエラー
+### DBマイグレーションエラー
 
 **症状:** デプロイ後にDB関連エラー
 
 **対処:**
 1. マイグレーションファイルが正しく生成されているか確認
-2. `packages/db/drizzle/` 内のSQLファイルを確認
+2. マイグレーションディレクトリ内のSQLファイルを確認
 3. 必要に応じて手動でSQLを実行
 
 ```bash
 # Cloud Run Jobs でマイグレーション実行
-gcloud run jobs execute ndays-db-migrate --region=asia-northeast1
+gcloud run jobs execute {マイグレーションジョブ名} --region={リージョン}
 ```
 
 ### OAuth ログイン失敗
@@ -72,16 +72,16 @@ gcloud run jobs execute ndays-db-migrate --region=asia-northeast1
 **症状:** リダイレクト後にエラー
 
 **対処:**
-1. Secret Manager の GOOGLE_CLIENT_ID / GITHUB_CLIENT_ID を確認
+1. シークレット管理サービスのOAuthクライアント情報を確認
 2. OAuthアプリのリダイレクトURLが本番URLと一致しているか確認
-3. NextAuth の NEXTAUTH_URL が正しいか確認
+3. 認証ライブラリの環境変数（コールバックURL等）が正しいか確認
 
 ## 4. ログ確認方法
 
 ```bash
 # Cloud Run ログ（直近1時間）
 gcloud logging read \
-  "resource.type=cloud_run_revision AND resource.labels.service_name=ndays-api-prod" \
+  "resource.type=cloud_run_revision AND resource.labels.service_name={APIサービス名}" \
   --limit=50 \
   --freshness=1h
 
@@ -101,19 +101,19 @@ gcloud logging read \
 
 ## 5. エスカレーションフロー
 
-1人開発のため、Sentryアラート → メール通知 で自分が対応。
+1人開発のため、エラー監視ツールのアラート → メール通知 で自分が対応。
 
 重大障害（データ損失等）の場合:
-1. Cloud Run のトラフィックを前リビジョンにロールバック
-2. Cloud SQL の自動バックアップからリストア
+1. コンピュートサービスのトラフィックを前リビジョンにロールバック
+2. DBの自動バックアップからリストア
 
 ## 6. 定期メンテナンス
 
 | タスク | 頻度 | 手順 |
 |--------|------|------|
-| 依存パッケージ更新 | 月1回 | `pnpm update` → テスト → デプロイ |
-| Cloud SQL バックアップ確認 | 月1回 | GCPコンソールでバックアップ一覧確認 |
-| Sentry イシュー棚卸し | 週1回 | 未解決エラーの確認・対処 |
-| Cloud Run リビジョン整理 | 月1回 | 古いリビジョンを削除（コスト最適化） |
-| OAuthトークン・証明書 | 更新通知時 | GCP/GitHub の通知に従い更新 |
-| Terraform state確認 | 月1回 | drift検出: `terraform plan` で差分がないか確認 |
+| 依存パッケージ更新 | 月1回 | パッケージ更新 → テスト → デプロイ |
+| DBバックアップ確認 | 月1回 | 管理コンソールでバックアップ一覧確認 |
+| エラー監視イシュー棚卸し | 週1回 | 未解決エラーの確認・対処 |
+| コンピュートサービス整理 | 月1回 | 古いリビジョンを削除（コスト最適化） |
+| OAuthトークン・証明書 | 更新通知時 | クラウドプロバイダの通知に従い更新 |
+| IaC state確認 | 月1回 | drift検出: IaC planで差分がないか確認 |
