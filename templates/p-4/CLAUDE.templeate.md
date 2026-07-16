@@ -31,17 +31,19 @@
 
 ## Commands
 
-- `pnpm dev` — Start both frontend and backend
-- `pnpm --filter web dev` — Frontend only
-- `pnpm --filter api dev` — Backend only
-- `pnpm db:push` — Push schema to DB (dev)
-- `pnpm db:generate` — Generate migration SQL (prod)
-- `pnpm db:migrate` — Apply migrations (prod)
-- `pnpm db:seed` — Insert demo data
-- `pnpm db:studio` — Open DB GUI
-- `pnpm test` — Run all tests
-- `pnpm lint` — Run linter
-- `pnpm format` — Run formatter
+<!-- Makefileが実コマンドの唯一の真実源。ここには標準ターゲット名だけを書き、生コマンド（pnpm等）を複製しない。 -->
+
+- `make setup` — First-time setup (deps, .env, DB)
+- `make dev` — Start development servers
+- `make build` — Build all packages
+- `make test` — Run all tests
+- `make lint` — Run linter
+- `make format` — Run formatter
+- `make db-push` — Push schema to DB (dev)
+- `make db-generate` — Generate migration SQL
+- `make db-migrate` — Apply migrations
+- `make db-seed` — Insert demo data
+- `make db-studio` — Open DB GUI
 
 ## Docs
 

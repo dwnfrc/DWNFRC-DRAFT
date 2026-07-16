@@ -100,20 +100,36 @@ pnpm --filter web test:e2e
 
 ---
 
-## 8. 主要スクリプト
+## 8. 主要コマンド（Makefile）
 
-| コマンド | 説明 |
-|----------|------|
-| `pnpm dev` | フロント + バック同時起動 |
-| `pnpm build` | 全パッケージビルド |
-| `pnpm test` | 全テスト実行 |
-| `pnpm lint` | ESLint実行 |
-| `pnpm format` | Prettier実行 |
-| `pnpm db:push` | スキーマ反映（開発用） |
-| `pnpm db:generate` | マイグレーション生成 |
-| `pnpm db:migrate` | マイグレーション適用 |
-| `pnpm db:seed` | デモデータ投入 |
-| `pnpm db:studio` | Drizzle Studio（DB GUI） |
+**Makefileが実コマンドの唯一の真実源。** docs・CLAUDE.md・実装プロンプトは以下の標準ターゲット名だけを参照し、スタック固有の実コマンド（pnpm / cargo / uv 等）はMakefileの中にだけ書く。コマンドを変えるときはMakefileだけを直す。
+
+| ターゲット | 説明 |
+|-----------|------|
+| `make setup` | 初回セットアップ（依存インストール、.env作成、DB起動） |
+| `make dev` | 開発サーバー起動 |
+| `make build` | 全パッケージビルド |
+| `make test` | 全テスト実行 |
+| `make lint` | Linter実行 |
+| `make format` | Formatter実行 |
+| `make db-push` | スキーマ反映（開発用） |
+| `make db-generate` | マイグレーション生成 |
+| `make db-migrate` | マイグレーション適用 |
+| `make db-seed` | デモデータ投入 |
+| `make db-studio` | DB GUI起動 |
+
+```makefile
+# 例: 各ターゲットはスタックの実コマンドへ委譲する薄いラッパー
+.PHONY: setup dev build test lint format db-push db-generate db-migrate db-seed db-studio
+
+dev:
+	pnpm dev
+
+test:
+	pnpm test
+```
+
+※ makeはmacOS/Linuxに標準搭載。Windowsで開発する場合はWSLを使う。プロジェクトに不要なターゲット（DBを使わない等）は削ってよいが、存在する操作は必ずこの標準名で提供する。
 
 ---
 
