@@ -16,8 +16,10 @@
 | `/draft:prep` | Phase 4 | 実装準備（コンテキスト + ステップ別プロンプト） | `CLAUDE.md`, `docs/claude-code-prompts.md` |
 | `/draft:implement` | Phase 5 | プロンプト集から1ステップ実装 + 動作確認 | 実装コード |
 | `/draft:feature` | イテレーション | 壁打ち→Feature Design Doc→実装→ドキュメント更新 | `docs/features/YYYYMMDD-HHMM_{機能名}.md` ほか |
+| `/draft:branch` | 補助 | 作業開始前に、戦略と変更規模から「main継続かブランチ作成か」を決めて準備 | 作業場所の決定(必要ならブランチ) |
+| `/draft:commit` | 補助 | リポジトリの流儀に合ったメッセージ・粒度でコミット | コミット |
 
-迷ったら `/draft:guide` から始める。
+迷ったら `/draft:guide` から始める。ブランチ戦略は `docs/03_dev-setup.md` が真実の源で、未定義ならbranchスキルがヒアリングして追記する。
 
 ## インストール
 
@@ -52,7 +54,9 @@ draft-plugin/
     ├── playbook/SKILL.md + templates/（6点） + references/（tech-stacks-aws/gcp）
     ├── prep/SKILL.md + CLAUDE.template.md + claude-code-prompts.template.md
     ├── implement/SKILL.md
-    └── feature/SKILL.md + feature-design-doc.template.md
+    ├── feature/SKILL.md + feature-design-doc.template.md
+    ├── branch/SKILL.md
+    └── commit/SKILL.md
 ```
 
 テンプレートの原本は [`../templates/`](../templates/) にあり、各スキルフォルダには実行時に参照するコピーを同梱している。方法論の原典は [`../README.md`](../README.md)。
