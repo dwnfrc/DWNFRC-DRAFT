@@ -1,0 +1,14 @@
+{
+  "name": "draft-marketplace",
+  "owner": {
+    "name": "eastasian"
+  },
+  "description": "DRAFT — Document-driven, Reproducible, AI-powered, Full-stack Toolkit",
+  "plugins": [
+    {
+      "name": "draft",
+      "source": "./draft-plugin",
+      "description": "コンセプト→壁打ち→設計仕様書→開発ドキュメント→実装準備→実装→機能追加イテレーション、をフェーズ別スキルとして提供するAI駆動開発フレームワーク"
+    }
+  ]
+}
