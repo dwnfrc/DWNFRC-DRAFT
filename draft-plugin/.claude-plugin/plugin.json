@@ -1,7 +1,7 @@
 {
   "name": "draft",
   "displayName": "DRAFT",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Document-driven, Reproducible, AI-powered, Full-stack Toolkit — コンセプトから設計書を段階的に練り上げ、確かな設計図ができてから実装に入るAI駆動開発フレームワーク",
   "author": {
     "name": "eastasian"

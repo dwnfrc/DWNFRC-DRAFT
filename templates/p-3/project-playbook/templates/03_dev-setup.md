@@ -117,26 +117,44 @@ pnpm --filter web test:e2e
 
 ---
 
-## 9. ブランチ戦略
+## 9. ブランチ戦略・リリースフロー
+
+GitHub Flow + GitOps環境プロモーション方式。長命ブランチは `main` のみで、リリースはブランチではなく環境ごとのバージョン宣言ファイルで管理する。
 
 ```
-main ← develop ← feature/xxx
-                ← fix/xxx
+feature/xxx ──squash──▶ main ──CI自動──▶ staging
+fix/xxx    ──squash──▶   │
+                         └─ promotion PR ──▶ production
 ```
 
 | ブランチ | 用途 |
 |----------|------|
-| `main` | 本番反映。直接pushしない。 |
-| `develop` | 開発統合。feature/fixのマージ先。 |
+| `main` | 唯一の長命ブランチ。直接pushしない。マージ = stagingへの自動リリース |
 | `feature/xxx` | 新機能開発。例: `feature/add-search` |
 | `fix/xxx` | バグ修正。例: `fix/login-error` |
 
+### マージ方式
+
+- コードPR（feature/fix → main）は**常にsquashマージ**。1 PR = 1コミット = 1つの意図となり、mainの履歴がPR単位で読める
+- 環境ブランチ（develop等）は使わない。環境間の差分がマージ履歴に埋もれ、cherry-pickが増えるため（environment branchesアンチパターン）
+
+### リリースフロー（環境プロモーション）
+
+環境ごとのバージョン宣言ファイル `deploy/{環境}/version` が「その環境で動くべきバージョン」の唯一の真実。
+
+1. mainへのsquashマージ → CIがアーティファクトをビルド（バージョン/コミットSHAタグ）し、`deploy/staging/version` を自動更新 → stagingへ自動デプロイ
+2. stagingで検証後、`deploy/production/version` を検証済みバージョンに更新する **promotion PR** を作成・マージ → 本番へデプロイ
+3. ロールバック = promotion PR をrevert
+
+バージョン体系はSemVer + gitタグ（CIが付与）。パイプラインの詳細は `docs/04_deployment-procedure.md` を参照。
+
 ### PRルール
 
-- `develop` へのマージはPR必須
+- `main` へのマージはPR必須（squash）
 - CIが通ること（lint + test）
 - セルフレビュー可（1人開発のため）
 - コミットメッセージ: Conventional Commits（`feat:`, `fix:`, `docs:`, `chore:`）
+- PRは `.github/PULL_REQUEST_TEMPLATE.md` に従って書く。promotion PRには対象バージョン・stagingでの検証結果・ロールバック手順を記載する
 
 ---
 

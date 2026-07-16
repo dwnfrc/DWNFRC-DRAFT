@@ -7,26 +7,41 @@
 
 ## 2. CI/CD パイプライン // これ以降のセクションは例です（GCP + Terraform + GitHub Actions構成）。実際の構成に応じて必ず更新する。
 
+リリースはブランチではなく、環境ごとのバージョン宣言ファイル `deploy/{環境}/version` の更新をトリガーにする（GitOps環境プロモーション。方針は `docs/03_dev-setup.md` のブランチ戦略・リリースフローを参照）。
+
 ```
-[GitHub Push]
+[feature/fix PR]
     │
-    ├── PR → IaC plan (infra変更時)
+    ├── ci.yml（lint + unit test + build check）
+    └── IaC plan（infra変更時）
+
+[main へ squash マージ]
     │
-    ├── develop ブランチ → ステージング自動デプロイ
+    ├── アーティファクトをビルド（イメージにバージョン/SHAタグ）→ レジストリ
+    └── CI が deploy/staging/version を自動更新（自動プロモーション）
+            → ステージングへ自動デプロイ
+
+[promotion PR（deploy/production/version を更新）をマージ]
     │
-    └── main ブランチ → 本番自動デプロイ
+    └── 宣言されたバージョンを本番へデプロイ
+        （ロールバック = promotion PR を revert）
 ```
 
 ### CI/CD ワークフロー
 
-**ci.yml** — 全ブランチ:
+**ci.yml** — 全PR:
 ```
 lint → unit test → build check
 ```
 
-**deploy.yml** — main / develop:
+**build.yml** — mainマージ時:
 ```
-test → コンテナビルド → レジストリ → デプロイ → DB migrate
+test → コンテナビルド → レジストリpush（バージョンタグ + gitタグ付与） → deploy/staging/version を自動更新
+```
+
+**deploy.yml** — deploy/{環境}/version 変更時:
+```
+宣言されたバージョンのイメージを対象環境へデプロイ → DB migrate → デプロイ後確認
 ```
 
 **infra.yml** — infra/ 配下に変更がある場合:
@@ -93,11 +108,16 @@ Terraformが作成するリソース:
 - [ ] 新しい環境変数がある場合、シークレット管理サービスに登録済み
 - [ ] infra変更がある場合、IaC planの差分を確認済み
 - [ ] ステージングで動作確認済み
+- [ ] promotion PRに対象バージョン・stagingでの検証結果・ロールバック手順を記載済み
 - [ ] PRレビュー完了（セルフレビュー可）
 
 ## 5. ロールバック手順
 
-### アプリケーションのロールバック
+### 通常のロールバック（環境プロモーション）
+
+`deploy/{環境}/version` を検証済みの前バージョンに戻すPR（promotion PRのrevert）をマージする。デプロイと同じパイプラインが走るため、これが基本のロールバック手段。以下は緊急時にCLIで直接戻す手順。
+
+### アプリケーションの緊急ロールバック
 
 ```bash
 # 直前のリビジョンに戻す
