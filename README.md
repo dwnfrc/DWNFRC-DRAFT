@@ -200,6 +200,11 @@ PROJECT-PLAYBOOK のドキュメントテンプレート一式:
 5. Deployment Procedure（04_deployment-procedure.md）
 6. Operation Runbook（05_operation-runbook.md）
 
+あわせて docs/README.md（ドキュメントインデックス）を作成してください:
+- 各ドキュメントへのリンク + 内容の一行説明（設計仕様書・画面遷移図も含む）
+- 読み順ガイド
+- 実在するファイルのみ載せる
+
 技術スタックの前提:
 - フロントエンド: [Next.js / React / etc.]
 - バックエンド: [NestJS / Express / etc.]
@@ -219,7 +224,7 @@ PROJECT-PLAYBOOK のドキュメントテンプレート一式:
 
 ### 成果物
 
-PROJECT-PLAYBOOKテンプレートに従った6ファイル。
+PROJECT-PLAYBOOKテンプレートに従った6ファイル + `docs/README.md`（ドキュメントインデックス）。
 
 ### Tips
 
