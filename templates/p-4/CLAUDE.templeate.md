@@ -55,6 +55,12 @@ Detailed specifications are in `docs/`:
 - docs/04_deployment-procedure.md — Deploy, CI/CD, rollback
 - docs/05_operation-runbook.md — Monitoring, incident response
 
+## Implementation Rules
+
+- **場当たり的な修正をしない。** エラーやバグは症状を抑えるパッチではなく、根本原因を特定し、原因と修正方針を提示してから直す。設計に関わる修正はユーザーの合意を得てから行う
+- **TODO/FIXMEコメントを残さない。** TODOを書きたくなったら設計に曖昧さがあるサイン。実装を止めて確認し、設計ドキュメントに反映してから実装する
+- **不要になった `.gitkeep` は削除する。** ディレクトリに実ファイルを追加したら、その中の `.gitkeep` を消す
+
 ## Code Style
 
 - Conventional Commits: feat:, fix:, docs:, chore:

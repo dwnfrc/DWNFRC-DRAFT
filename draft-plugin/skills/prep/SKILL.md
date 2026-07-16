@@ -45,7 +45,7 @@ Phase 5（実装）でClaude Codeに渡す2つのファイルを作る:
 
 ### 2. CLAUDE.md を生成する
 
-このスキルのディレクトリにある `CLAUDE.template.md` をReadし、その構成（プロジェクト名 / Tech Stack / Structure / Key Design Decisions / Commands / Docs / Code Style）に従ってプロジェクトの実内容で埋める。
+このスキルのディレクトリにある `CLAUDE.template.md` をReadし、その構成（プロジェクト名 / Tech Stack / Structure / Key Design Decisions / Commands / Docs / Implementation Rules / Code Style）に従ってプロジェクトの実内容で埋める。
 
 **書くこと / 書かないことを厳守する:**
 
@@ -57,6 +57,7 @@ Phase 5（実装）でClaude Codeに渡す2つのファイルを作る:
 | 開発コマンド一覧 | Phase 2〜3の内容の複製 |
 | docsへのファイルパス | |
 | コーディング規約 | |
+| 実装の規律（場当たり修正・TODOコメントの禁止など） | |
 
 CLAUDE.mdは毎チャット読まれる前提知識。詳細はdocsへのパス参照に留め、本体は短く保つ。テンプレートのプレースホルダ（`{...}`）を残さないこと。プロジェクトに該当しない項目（例: IaC不使用、モノレポでない）はテンプレートに合わせて無理に埋めず、実態に合わせて削除・修正する。
 
