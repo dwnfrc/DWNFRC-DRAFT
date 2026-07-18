@@ -56,6 +56,7 @@ draft-plugin/
     ├── prep/SKILL.md + CLAUDE.template.md + claude-code-prompts.template.md
     ├── implement/SKILL.md
     ├── feature/SKILL.md + feature-design-doc.template.md
+    ├── feature-implement/SKILL.md
     ├── branch/SKILL.md
     └── commit/SKILL.md
 ```

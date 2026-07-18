@@ -93,7 +93,7 @@ pairs = {
   'templates/p-2/design-spec.md'                                   => 'draft-plugin/skills/design-spec/design-spec.template.md',
   'templates/p-2/screen_flow.mermaid'                              => 'draft-plugin/skills/design-spec/screen_flow.template.mermaid',
   'templates/p-3/project-playbook/templates/02-02_feature-design-doc.md' => 'draft-plugin/skills/feature/feature-design-doc.template.md',
-  'templates/p-4/CLAUDE.templeate.md'                              => 'draft-plugin/skills/prep/CLAUDE.template.md',
+  'templates/p-4/CLAUDE.template.md'                               => 'draft-plugin/skills/prep/CLAUDE.template.md',
   'templates/p-4/claude-code-prompts.md'                           => 'draft-plugin/skills/prep/claude-code-prompts.template.md',
 }
 Dir[File.join(ROOT, 'templates/p-3/project-playbook/templates/*.md')].each do |src|
@@ -110,6 +110,23 @@ pairs.each do |src, dst|
   next warnings << "コピーが無い: #{dst} (原本: #{src})" unless File.exist?(d)
 
   warnings << "内容が乖離: #{src} <-> #{dst}" if File.read(s) != File.read(d)
+end
+
+# --- 4. README(原典)の templates/ 参照の実在チェック ---
+readme = File.read(File.join(ROOT, 'README.md'))
+readme.scan(%r{templates/[\w/.-]+}).uniq.each do |ref|
+  ref = ref.sub(/\.+\z/, '')
+  errors << "README.md: 参照しているテンプレートが無い: #{ref}" unless File.exist?(File.join(ROOT, ref))
+end
+
+# --- 5. スキル一覧の同期(guide の案内先と draft-plugin/README.md の表・構成ツリー) ---
+guide_text    = File.exist?(File.join(PLUGIN, 'skills/guide/SKILL.md')) ? File.read(File.join(PLUGIN, 'skills/guide/SKILL.md')) : ''
+plugin_readme = File.read(File.join(PLUGIN, 'README.md'))
+skill_names.each do |name|
+  ref = %r{/draft:#{Regexp.escape(name)}(?![a-z0-9-])}
+  errors << "skills/guide/SKILL.md: /draft:#{name} への案内が無い" unless name == 'guide' || guide_text.match?(ref)
+  errors << "draft-plugin/README.md: スキル表に /draft:#{name} が無い" unless plugin_readme.match?(ref)
+  errors << "draft-plugin/README.md: 構成ツリーに #{name}/SKILL.md が無い" unless plugin_readme.match?(%r{(?<![\w-])#{Regexp.escape(name)}/SKILL\.md})
 end
 
 # --- 結果 ---
