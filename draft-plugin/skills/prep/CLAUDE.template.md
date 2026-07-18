@@ -47,7 +47,7 @@
 
 ## Docs
 
-Detailed specifications are in `docs/`:
+Detailed specifications are in `docs/`. This file and `docs/claude-code-prompts.md` are derived from `docs/` — if they disagree, `docs/` is the source of truth:
 
 - docs/{設計仕様書ファイル名} — Product design, UX, layout system, data model
 - docs/01_prd.md — User stories, KPI, scope

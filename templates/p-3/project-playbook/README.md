@@ -44,7 +44,7 @@ Goal/Non-Goal
 
 アーキテクチャ概要、技術選定理由、主要な設計判断
 技術選定と判断理由（ADR:Architectural Decision Records 含む）
-画面一覧
+ルーティング（画面の定義はdesign-specが所有）
 API設計
 データモデル
 セキュリティ・パフォーマンス考慮事項
