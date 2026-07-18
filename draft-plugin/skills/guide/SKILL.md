@@ -48,7 +48,8 @@ Phase 5完了後 → イテレーション(機能追加):
 | 3 | 開発着手できる技術ドキュメント一式に変換 | /draft:playbook | docs/01_prd.md ほかPlaybook 6点 |
 | 4 | Claude Codeに渡すコンテキストとステップ別プロンプトを作成 | /draft:prep | CLAUDE.md, docs/claude-code-prompts.md |
 | 5 | プロンプト集を順に実行して動くアプリを完成 | /draft:implement | 動作するコード |
-| イテレーション | 機能追加サイクル(壁打ち→Feature Design Doc→実装→Doc更新) | /draft:feature | docs/features/YYYYMMDD-HHMM_{機能名}.md |
+| イテレーション(設計) | 機能追加の設計(規模判定→壁打ち→Feature Design Doc作成) | /draft:feature | docs/features/YYYYMMDD-HHMM_{機能名}.md |
+| イテレーション(実装) | FDDから実装(プロンプト生成→実装→Doc更新→コミット) | /draft:feature-implement | 実装コード + 更新されたdocs |
 
 フェーズに属さない補助スキル(いつでも使える):
 
@@ -72,6 +73,8 @@ Phase 5完了後 → イテレーション(機能追加):
 | 7 | 一通り動くものがある | イテレーション(機能追加) | /draft:feature |
 
 判定6と7の区別は機械的に決めにくいので、ソースディレクトリの有無や `docs/claude-code-prompts.md` の進捗を見た上で、迷ったらユーザーに「アプリは一通り動く状態ですか?」と確認する。
+
+判定7(イテレーション)の場合、`docs/features/` に未実装のFDD(System Design Docに反映されていない設計)が残っていれば /draft:feature-implement を、新しい機能を設計するなら /draft:feature を案内する。どちらか判断がつかなければユーザーに確認する。
 
 診断時の補足:
 
@@ -133,7 +136,8 @@ concept.md -> brainstorm-notes.md -> design-spec.md    -> 01_prd.md            -
 - Phase 3 → /draft:playbook — 開発ドキュメント一式(Playbook 6点)を作成する
 - Phase 4 → /draft:prep — CLAUDE.mdとステップ別プロンプト集を作成する
 - Phase 5 → /draft:implement — プロンプト集を順に実行して実装する
-- イテレーション → /draft:feature — 機能追加サイクルを回す
+- イテレーション(設計) → /draft:feature — 機能追加の壁打ちとFDD作成を行う
+- イテレーション(実装) → /draft:feature-implement — 承認済みFDDを実装する
 
 ## 注意
 

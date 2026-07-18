@@ -411,6 +411,10 @@ System Design Doc更新（Claude Code — 同じチャット）
   実装完了後、変更内容をSystem Design Docに反映
 ```
 
+設計（壁打ち〜Feature Design Doc）と実装はセッションを分けてよい。
+受け渡すのはFDDファイルで、実装セッションはFDDから実装プロンプトを組み立て直せるため、
+生成済みプロンプトが手元に残っていなくても再開できる。
+
 ### 壁打ちの始め方
 
 Claude.aiで新しいチャットを開き、設計仕様書とSystem Design Docを添付して開始する。
