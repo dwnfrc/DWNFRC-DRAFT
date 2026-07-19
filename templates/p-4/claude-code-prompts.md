@@ -9,8 +9,8 @@ Claude Code のチャットに **1つずつ** コピペして使う。
 - Step 3 → Chat 2
 - Step 4 → Chat 3
 - Step 5〜6 → Chat 4
-- Step 7〜8 → Chat 5
-- Step 9 → Chat 6
+- Step 7 → Chat 5
+- Step 8〜9 → Chat 6
 
 ---
 
