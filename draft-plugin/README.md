@@ -2,7 +2,7 @@
 
 [DRAFT](../README.md)（Document-driven, Reproducible, AI-powered, Full-stack Toolkit）の開発方式を、Claude Codeのスキルとして実行できるようにしたプラグイン。
 
-元の方法論はPhase 1〜4をClaude.ai、Phase 5をClaude Codeで行う前提だが、このプラグインでは全フェーズをClaude Code内で完結できる。「後工程に渡すのは常にファイル」「フェーズを飛ばさない」「1ステップ=1チャット」の原則はそのまま維持している。
+このプラグインは、DRAFTの全フェーズをClaude Code内で完結させる実装。「後工程に渡すのは常にファイル」「フェーズを飛ばさない」「1ステップ=1チャット」の原則はそのまま維持している。
 
 ## スキル一覧
 
