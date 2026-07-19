@@ -156,7 +156,10 @@ docs/04_deployment-procedure.md と docs/03_dev-setup.md に従って、
 3. フロントエンドのユニットテスト（ユーティリティ関数、コアロジック）
 4. E2Eテスト1本（コアフローのHappy Path）
 5. Husky + lint-staged（コミット時にlint + format自動実行）
-6. README.md
+6. KPI計測: docs/01_prd.md の成功指標(KPI)を計測できる最小限の仕組みを導入する
+   （アナリティクスまたは計測ログ。何を使うかは 02-01_system-design-doc.md の
+   モニタリング・ログ方針に従う）
+7. README.md
 
 make test が全パス、make lint がエラー0の状態をゴールとする。
 ```
