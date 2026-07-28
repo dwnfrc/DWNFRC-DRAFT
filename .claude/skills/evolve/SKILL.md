@@ -27,6 +27,8 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 | `draft-plugin/skills/*/SKILL.md` | 派生 | 方法論の**実装**(READMEに追随する。1スキル=1ディレクトリ。一覧は `draft-plugin/README.md` のスキル表) |
 | `draft-plugin/skills/*/` 内のテンプレート | 派生 | `templates/` 配下の**原本のコピー**(スキル実行時に参照される配布物) |
 | `templates/` | ソース | テンプレート原本 |
+| `dist/cursor/skills/` | 派生 | Cursor用スキル一式。`scripts/build-cursor-skills.rb` が `draft-plugin/skills/` から生成(名前空間 `/draft:` → `/draft-`)。**手で編集しない** — 正を直して再生成する |
+| `scripts/build-cursor-skills.rb` | — | Cursor派生の生成器(`--check` で乖離検証。validate.rbが呼ぶ) |
 | `manual-flow.md` | アーカイブ | 手動フロー(初期実装)の手順集。**更新しない** — ここを直したくなったら、それはspec(README)かプラグインの課題 |
 | `draft-plugin/.claude-plugin/plugin.json` | — | プラグインマニフェスト(バージョン管理) |
 | `.claude-plugin/marketplace.json` | — | マーケットプレイス定義 |
@@ -53,8 +55,8 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 | スキルの実行の仕方だけ(対話手順・ツール使用・エラー処理) | 該当する `SKILL.md` のみ。READMEには波及しない |
 | 方法論そのもの(フェーズ定義・原則・成果物) | `README.md`(ソース)を**先に**直し、該当 `SKILL.md` を実装として追随させる。追随までが1サイクル |
 | テンプレートの内容 | `templates/` の原本を直し、`skills/` 内コピーへ反映する(コピーは配布用の派生) |
-| 新スキルの追加 | `skills/` に新ディレクトリ + `guide`(診断表・案内先) + `draft-plugin/README.md` の表 + 必要なら `README.md` |
-| 配布・構成 | `plugin.json` / `marketplace.json` |
+| 新スキルの追加 | `skills/` に新ディレクトリ + `guide`(診断表・案内先) + `draft-plugin/README.md` の表 + 必要なら `README.md`。追加後に Cursor派生を再生成する |
+| 配布・構成 | `plugin.json` / `marketplace.json`。Cursor配布は `scripts/build-cursor-skills.rb` と `dist/cursor/skills/` |
 
 ### 3. 方針の壁打ち
 
@@ -73,6 +75,7 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 - 成果物パスの受け渡し(あるスキルの出力ファイル名=次のスキルの入力)を壊さない
 - 方法論に関わる変更はREADME(ソース)を先に直し、スキル・テンプレコピーを追随させる(影響範囲マップの方向に従う)
 - テンプレート変更は原本(`templates/`)を直し、コピー(`skills/` 内)へ反映する
+- `skills/` を変更したら Cursor派生を再生成する: `ruby scripts/build-cursor-skills.rb`(正は `skills/`、`dist/cursor/skills/` は派生。手で編集しない)
 - `plugin.json` のversionを上げる: 文言修正・バグ修正=patch、スキルの追加・挙動変更=minor
 - スキルの追加・削除・改名をしたら、`guide` の診断表・案内先一覧と `draft-plugin/README.md` のスキル表も更新する
 

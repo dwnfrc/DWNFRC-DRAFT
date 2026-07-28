@@ -41,6 +41,24 @@ claude --plugin-dir /path/to/DRAFT/draft-plugin
 
 インストール後は `/reload-plugins` または再起動で反映される。
 
+### Cursorで使う
+
+Cursor 2.4+ は Claude Code と同じ `SKILL.md` 形式の Agent Skills をネイティブに読み込む。Cursor用は `draft-plugin/skills/` を正として [`dist/cursor/skills/`](../dist/cursor/skills/) に**生成した派生**を用意してある(名前空間だけ `/draft:concept` → `/draft-concept` に変換済み)。
+
+導入は、この一式を Cursor のスキル探索先へコピーするだけ:
+
+```bash
+# プロジェクト単位(そのリポジトリでだけ有効)
+cp -R /path/to/DRAFT/dist/cursor/skills/* your-project/.cursor/skills/
+
+# 全プロジェクト共通(ユーザー単位)
+cp -R /path/to/DRAFT/dist/cursor/skills/* ~/.cursor/skills/
+```
+
+Cursorのチャットで `/draft-guide` のように呼ぶか、内容に応じて自動起動する。迷ったら `/draft-guide` から。
+
+派生は正から再生成できる。スキルを更新したら `ruby scripts/build-cursor-skills.rb` で作り直す(`--check` で最新かを検証、`validate.rb` にも組み込み済み)。
+
 ## 構成
 
 ```
@@ -62,3 +80,5 @@ draft-plugin/
 ```
 
 テンプレートの原本は [`../templates/`](../templates/) にあり、各スキルフォルダには実行時に参照するコピーを同梱している。方法論の原典は [`../README.md`](../README.md)。
+
+Cursor用の配布物 [`../dist/cursor/skills/`](../dist/cursor/skills/) は `skills/` から `scripts/build-cursor-skills.rb` で生成する派生。手で編集せず、正(`skills/`)を直して再生成する。
