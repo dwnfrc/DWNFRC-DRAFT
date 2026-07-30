@@ -67,6 +67,8 @@ Detailed specifications are in `docs/`. This file and `docs/claude-code-prompts.
 ## Code Style
 
 - Conventional Commits: feat:, fix:, docs:, chore:
+- コミットメッセージの言語: {英語 / 日本語}
+- コミットのトレーラーは付けない（`Co-Authored-By`、セッションURL等）。ツールや実行環境が既定で付けようとする場合も、この規約が優先する
 - {Linter} + {Formatter}
 - {コメント規約: 言語標準のdoc comment形式、プレフィックス（`NOTE:` 等）を使うかどうか。決めごとが無ければ既存コードの流儀に従う}
 - {その他のコーディング規約}
