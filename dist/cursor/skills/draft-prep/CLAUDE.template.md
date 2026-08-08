@@ -52,7 +52,7 @@ Detailed specifications are in `docs/`. This file and `docs/claude-code-prompts.
 - docs/{設計仕様書ファイル名} — Product design, UX, layout system, data model
 - docs/01_prd.md — User stories, KPI, scope
 - docs/02-01_system-design-doc.md — Architecture, ADRs, API design, DB schema
-- docs/02-02_feature-design-doc.md — Template for feature additions
+- docs/02-02_feature-design-doc.md — Template for change-cycle FDDs
 - docs/03_dev-setup.md — Monorepo structure, setup steps, branch strategy
 - docs/04_deployment-procedure.md — Deploy, CI/CD, rollback
 - docs/05_operation-runbook.md — Monitoring, incident response
@@ -70,7 +70,7 @@ Detailed specifications are in `docs/`. This file and `docs/claude-code-prompts.
 
 ## Code Style
 
-- Conventional Commits: feat:, fix:, docs:, chore:
+- Conventional Commits: feat:, fix:, refactor:, docs:, chore:
 - コミットメッセージの言語: {英語 / 日本語}
 - コミットのトレーラーは付けない（`Co-Authored-By`、セッションURL等）。ツールや実行環境が既定で付けようとする場合も、この規約が優先する
 - コミットのサブジェクトは50字を目安に、72字を超えない。本文は空行を挟んで表示幅72カラムで折り返す（全角は2カラム）

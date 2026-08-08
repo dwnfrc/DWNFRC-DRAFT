@@ -31,19 +31,20 @@ Phase 0     Phase 1     Phase 2      Phase 3          Phase 4     Phase 5
 コンセプト → 壁打ち  → 設計仕様書 → 開発ドキュメント → 実装準備 → 実装
 (人間+AI)   (対話)     (成果物)     (成果物)          (成果物)    (コード生成)
 
-Phase 5完了後 → イテレーション(機能追加):
-  壁打ち → Feature Design Doc → 実装プロンプト生成 → 実装 → ソースDoc更新 → 繰り返し
+Phase 5完了後 → イテレーション(変更サイクル):
+  FDD要否判定 → 壁打ち → Feature Design Doc → 実装プロンプト生成 → 実装 → ソースDoc更新 → 繰り返し
+  (振る舞い(仕様)が変わらない変更 — リファクタ・依存更新・chore・仕様に実装を合わせるだけのバグ修正 — はFDD不要。直接実装してコミット)
 ```
 
 **大原則: 後工程に渡すのは常にファイル。口頭の合意ではなくMarkdownに書き出す。**
-**大原則: ドキュメントがソース、実装は成果物。実装は常にソース層のドキュメントから再現できる状態を保つ。**
+**大原則: ドキュメントがソース、実装は成果物。実装は常にソース層のドキュメントから再現できる状態を保つ。**(再現とは同じコードの再生成ではなく、同じ仕様・能力を持つプロダクトを再構築できること)
 **各Phaseの成果物は次のPhaseの入力になる。飛ばすと品質が落ちる。**
 
 ドキュメントは3層で管理する(詳細はREADME原典の「ドキュメント体系」):
 
 - **ソース**(design-spec、PRD、System Design Doc、dev-setup等) — 実装を再現するための正。常に現在の状態を反映する
 - **派生**(CLAUDE.md、claude-code-prompts.md、docs/README.md) — ソースから再生成可能
-- **アーカイブ**(concept.md、brainstorm-notes.md、FDD) — 経緯の記録。書き換えず蓄積する
+- **アーカイブ**(concept.md、brainstorm-notes.md、FDD) — 経緯の記録。書き換えず蓄積する(FDDは対象サイクルの実装完了時に確定してこの層に入る)
 
 同じ事実は複数のドキュメントに書かず、事実ごとに所有ドキュメントを1つ決めて他は参照する(事実の所有権マップ)。
 
@@ -57,7 +58,7 @@ Phase 5完了後 → イテレーション(機能追加):
 | 3 | 開発着手できる技術ドキュメント一式に変換 | /draft-playbook | docs/01_prd.md ほかPlaybook 6点 |
 | 4 | Claude Codeに渡すコンテキストとステップ別プロンプトを作成 | /draft-prep | CLAUDE.md, docs/claude-code-prompts.md |
 | 5 | プロンプト集を順に実行して動くアプリを完成 | /draft-implement | 動作するコード |
-| イテレーション(設計) | 機能追加の設計(規模判定→壁打ち→Feature Design Doc作成) | /draft-feature | docs/features/YYYYMMDD-HHMM_{機能名}.md |
+| イテレーション(設計) | 変更の設計(FDD要否判定→規模判定→壁打ち→Feature Design Doc作成) | /draft-feature | docs/features/YYYYMMDD-HHMM_{機能名}.md |
 | イテレーション(実装) | FDDから実装(プロンプト生成→実装→Doc更新→コミット) | /draft-feature-implement | 実装コード + 更新されたdocs |
 
 フェーズに属さない補助スキル(いつでも使える):
@@ -79,11 +80,11 @@ Phase 5完了後 → イテレーション(機能追加):
 | 4 | Playbook 6点(`docs/01_prd.md`, `docs/02-01_system-design-doc.md`, `docs/02-02_feature-design-doc.md`, `docs/03_dev-setup.md`, `docs/04_deployment-procedure.md`, `docs/05_operation-runbook.md`)が揃っていない | Phase 3(開発ドキュメント未作成) | /draft-playbook |
 | 5 | `CLAUDE.md`(リポジトリルート)か `docs/claude-code-prompts.md` が無い | Phase 4(実装準備未完了) | /draft-prep |
 | 6 | 実装コードが未完(ソースコードが無い、またはprompts.mdのステップが途中) | Phase 5(実装中) | /draft-implement |
-| 7 | 一通り動くものがある | イテレーション(機能追加) | /draft-feature |
+| 7 | 一通り動くものがある | イテレーション(変更サイクル) | /draft-feature |
 
 判定6と7の区別は機械的に決めにくいので、ソースディレクトリの有無や `docs/claude-code-prompts.md` の進捗を見た上で、迷ったらユーザーに「アプリは一通り動く状態ですか?」と確認する。
 
-判定7(イテレーション)の場合、`docs/features/` に未実装のFDD(System Design Docに反映されていない設計)が残っていれば /draft-feature-implement を、新しい機能を設計するなら /draft-feature を案内する。どちらか判断がつかなければユーザーに確認する。
+判定7(イテレーション)の場合、`docs/features/` に未実装のFDD(System Design Docに反映されていない設計)が残っていれば /draft-feature-implement を、新しい変更を設計するなら /draft-feature を案内する(振る舞い(仕様)が変わらない変更 — リファクタ・依存更新・chore・仕様に実装を合わせるだけのバグ修正 — はFDD不要で、直接実装して /draft-commit)。どちらか判断がつかなければユーザーに確認する。
 
 診断時の補足:
 
@@ -112,8 +113,8 @@ Phase 5完了後 → イテレーション(機能追加):
 | CLAUDE.mdにステップ別指示を書く | 毎回読まれるので情報過多 | CLAUDE.md = 前提知識、prompts.md = 指示 |
 | 技術スタックを実装フェーズで変更 | ドキュメント全体の書き直し | Phase 3で確定させる |
 | 動作確認せずに次のステップへ進む | エラーが積み上がって修正困難 | 各ステップ後に必ず動作確認 |
-| 機能追加時に設計仕様書を読ませずに壁打ち | 既存設計と矛盾する設計が出てくる | 設計仕様書 + System Design Docを必ず入力にする |
-| 機能追加後にソースDocを更新しない | 次の壁打ちで古い情報を元に設計してしまう | 実装プロンプトにドキュメント更新指示(所有権マップ準拠)を組み込む |
+| 変更の壁打ちで設計仕様書を読ませない | 既存設計と矛盾する設計が出てくる | 設計仕様書 + System Design Docを必ず入力にする |
+| 実装後にソースDocを更新しない | 次の壁打ちで古い情報を元に設計してしまう | 実装プロンプトにドキュメント更新指示(所有権マップ準拠)を組み込む |
 | Feature Design DocをそのままClaude Codeに投げる | 実装に必要な依存順・検証可能なゴール・スコープ境界が無い（役割が違う） | 実装プロンプトを生成してから渡す |
 | 同じ事実を複数のドキュメントに書く | 更新漏れで食い違い、どれが正か不明になる | 所有ドキュメントを1つ決め、他は転記せず参照する |
 
@@ -146,7 +147,7 @@ concept.md -> brainstorm-notes.md -> design-spec.md    -> 01_prd.md            -
 - Phase 3 → /draft-playbook — 開発ドキュメント一式(Playbook 6点)を作成する
 - Phase 4 → /draft-prep — CLAUDE.mdとステップ別プロンプト集を作成する
 - Phase 5 → /draft-implement — プロンプト集を順に実行して実装する
-- イテレーション(設計) → /draft-feature — 機能追加の壁打ちとFDD作成を行う
+- イテレーション(設計) → /draft-feature — 変更の壁打ちとFDD作成を行う(FDD要否の判定を含む)
 - イテレーション(実装) → /draft-feature-implement — 承認済みFDDを実装する
 
 ## 注意

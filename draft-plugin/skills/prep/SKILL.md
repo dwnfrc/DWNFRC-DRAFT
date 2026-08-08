@@ -20,7 +20,7 @@ Phase 5（実装）でClaude Codeに渡す2つのファイルを作る:
 
 以下のPhase 2〜3の成果物を `docs/` からReadする:
 
-- 設計仕様書（`docs/design-spec.md` など。画面仕様・レイアウトシステム・データモデル）
+- 設計仕様書（`docs/design-spec.md` など。画面仕様・レイアウトシステム）
 - `docs/01_prd.md`
 - `docs/02-01_system-design-doc.md`（アーキテクチャ、ADR、API設計、DBスキーマ）
 - `docs/03_dev-setup.md`（リポジトリ構成、コマンド、ブランチ戦略）

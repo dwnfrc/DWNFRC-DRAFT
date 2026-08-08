@@ -159,8 +159,9 @@
 各テーブルのカラム定義を記載。
 Phase 3でORM（Prisma/Drizzle）のスキーマコードに変換する前提なので、
 ここでは論理設計レベルでOK。
-所有権はPhase 3でSystem Design Docへ移る。以降のスキーマ変更はSystem Design Docのみを
-更新し、この章は設計時ドラフトとして残す（追随させない）。
+所有権はPhase 3でSystem Design Docへ章ごと移る。移管時にこの章（ER図・テーブル定義）は
+削除し、「データモデルは docs/02-01_system-design-doc.md が所有する」という参照1行に
+置き換える。以降のスキーマ変更はSystem Design Docのみを更新する。
 -->
 
 | テーブル | カラム | 型 | 備考 |
