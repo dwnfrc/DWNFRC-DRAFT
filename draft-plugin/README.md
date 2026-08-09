@@ -17,6 +17,7 @@
 | `/draft:implement` | Phase 5 | プロンプト集から1ステップ実装 + 動作確認 | 実装コード |
 | `/draft:feature` | イテレーション | 変更の設計(FDD要否判定→規模判定→壁打ち→Feature Design Doc作成) | `docs/features/YYYYMMDD-HHMM_{機能名}.md` |
 | `/draft:feature-implement` | イテレーション | FDDから実装(プロンプト生成→実装→ドキュメント更新→コミット) | 実装コード + 更新されたdocs |
+| `/draft:adopt` | 導入 | 既存プロジェクト(DRAFT外製)にソース層を逆生成して導入(調査→ヒアリング→現状版ドラフト→検証→検出点配置) | `docs/` ソース層4点 + `CLAUDE.md` + `scripts/doc-lint.sh` |
 | `/draft:branch` | 補助 | 作業開始前に、戦略と変更規模から「main継続かブランチ作成か」を決めて準備 | 作業場所の決定(必要ならブランチ) |
 | `/draft:commit` | 補助 | リポジトリの流儀に合ったメッセージ・粒度でコミット | コミット |
 
@@ -66,6 +67,7 @@ draft-plugin/
 ├── .claude-plugin/
 │   └── plugin.json
 └── skills/
+    ├── adopt/SKILL.md + CLAUDE.template.md + doc-lint.template.sh
     ├── guide/SKILL.md
     ├── concept/SKILL.md + concept.template.md
     ├── brainstorm/SKILL.md

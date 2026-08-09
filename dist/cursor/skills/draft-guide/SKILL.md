@@ -67,6 +67,7 @@ Phase 5完了後 → イテレーション(変更サイクル):
 |--------|------|
 | /draft-branch | 作業開始前に、ブランチ戦略(docs/03_dev-setup.md)と変更規模から「main継続かブランチ作成か」を決めて準備する |
 | /draft-commit | 作業完了時に、リポジトリの流儀に合ったメッセージ・粒度でコミットする |
+| /draft-adopt | 既存プロジェクト(DRAFT外製)に、コードからソース層を逆生成してDRAFTを導入する |
 
 ### 2. プロジェクトの状態をファイルから診断する
 
@@ -74,17 +75,20 @@ Phase 5完了後 → イテレーション(変更サイクル):
 
 | 判定順 | 条件 | 現在地 | 次に実行 |
 |--------|------|--------|---------|
-| 1 | `docs/concept.md` が無い | Phase 0(コンセプト未作成) | /draft-concept |
-| 2 | `docs/concept.md` はあるが、`docs/brainstorm-notes.md` も `docs/design-spec.md` も無い | Phase 1(壁打ち未実施) | /draft-brainstorm |
-| 3 | `docs/design-spec.md` か `docs/screen_flow.mermaid` が無い | Phase 2(設計仕様書未作成・未完了) | /draft-design-spec |
-| 4 | Playbook 6点(`docs/01_prd.md`, `docs/02-01_system-design-doc.md`, `docs/02-02_feature-design-doc.md`, `docs/03_dev-setup.md`, `docs/04_deployment-procedure.md`, `docs/05_operation-runbook.md`)が揃っていない | Phase 3(開発ドキュメント未作成) | /draft-playbook |
-| 5 | `CLAUDE.md`(リポジトリルート)か `docs/claude-code-prompts.md` が無い | Phase 4(実装準備未完了) | /draft-prep |
-| 6 | 実装コードが未完(ソースコードが無い、またはprompts.mdのステップが途中) | Phase 5(実装中) | /draft-implement |
-| 7 | 一通り動くものがある | イテレーション(変更サイクル) | /draft-feature |
+| 1 | 実装コードが既にあるのに、`docs/design-spec.md` も `docs/02-01_system-design-doc.md` も `docs/concept.md` も無い | 既存プロジェクト(DRAFT未導入) | /draft-adopt |
+| 2 | `docs/design-spec.md` と `docs/02-01_system-design-doc.md` があるのに `docs/concept.md` が無い(adopt導入済み) | イテレーション(変更サイクル) | /draft-feature |
+| 3 | `docs/concept.md` が無い | Phase 0(コンセプト未作成) | /draft-concept |
+| 4 | `docs/concept.md` はあるが、`docs/brainstorm-notes.md` も `docs/design-spec.md` も無い | Phase 1(壁打ち未実施) | /draft-brainstorm |
+| 5 | `docs/design-spec.md` か `docs/screen_flow.mermaid` が無い | Phase 2(設計仕様書未作成・未完了) | /draft-design-spec |
+| 6 | Playbook 6点(`docs/01_prd.md`, `docs/02-01_system-design-doc.md`, `docs/02-02_feature-design-doc.md`, `docs/03_dev-setup.md`, `docs/04_deployment-procedure.md`, `docs/05_operation-runbook.md`)が揃っていない | Phase 3(開発ドキュメント未作成) | /draft-playbook |
+| 7 | `CLAUDE.md`(リポジトリルート)か `docs/claude-code-prompts.md` が無い | Phase 4(実装準備未完了) | /draft-prep |
+| 8 | 実装コードが未完(ソースコードが無い、またはprompts.mdのステップが途中) | Phase 5(実装中) | /draft-implement |
+| 9 | 一通り動くものがある | イテレーション(変更サイクル) | /draft-feature |
 
-判定6と7の区別は機械的に決めにくいので、ソースディレクトリの有無や `docs/claude-code-prompts.md` の進捗を見た上で、迷ったらユーザーに「アプリは一通り動く状態ですか?」と確認する。
+判定1は「/draft-adopt でソース層を逆生成してから変更サイクルに入る」経路(DRAFT外製のプロジェクト)。判定2はadopt完了後の受け皿 — adoptは意図的に concept / brainstorm / prompts.md を作らないため、この判定が無いと導入済みプロジェクトが判定3(Phase 0)や判定6(Phase 3)に誤って落ちる。
+判定8と9の区別は機械的に決めにくいので、ソースディレクトリの有無や `docs/claude-code-prompts.md` の進捗を見た上で、迷ったらユーザーに「アプリは一通り動く状態ですか?」と確認する。
 
-判定7(イテレーション)の場合、`docs/features/` に未実装のFDD(System Design Docに反映されていない設計)が残っていれば /draft-feature-implement を、新しい変更を設計するなら /draft-feature を案内する(振る舞い(仕様)が変わらない変更 — リファクタ・依存更新・chore・仕様に実装を合わせるだけのバグ修正 — はFDD不要で、直接実装して /draft-commit)。どちらか判断がつかなければユーザーに確認する。
+判定2・9(イテレーション)の場合、`docs/features/` に未実装のFDD(System Design Docに反映されていない設計)が残っていれば /draft-feature-implement を、新しい変更を設計するなら /draft-feature を案内する(振る舞い(仕様)が変わらない変更 — リファクタ・依存更新・chore・仕様に実装を合わせるだけのバグ修正 — はFDD不要で、直接実装して /draft-commit)。どちらか判断がつかなければユーザーに確認する。
 
 診断時の補足:
 
@@ -126,6 +130,7 @@ Phase 5以降のプロジェクトでは、現在地の診断に加えてドキ�
 | 実装後にソースDocを更新しない | 次の壁打ちで古い情報を元に設計してしまう | 実装プロンプトにドキュメント更新指示(所有権マップ準拠)を組み込む |
 | Feature Design DocをそのままClaude Codeに投げる | 実装に必要な依存順・検証可能なゴール・スコープ境界が無い（役割が違う） | 実装プロンプトを生成してから渡す |
 | 同じ事実を複数のドキュメントに書く | 更新漏れで食い違い、どれが正か不明になる | 所有ドキュメントを1つ決め、他は転記せず参照する |
+| 既存プロジェクトでソース層なしのまま変更サイクルを回す | 壁打ちの入力が無く、既存設計と矛盾する変更が積み上がる | /draft-adopt でソース層を逆生成してから /draft-feature |
 
 ### 参考: フェーズ間の成果物フロー
 
@@ -150,6 +155,7 @@ concept.md -> brainstorm-notes.md -> design-spec.md    -> 01_prd.md            -
 
 診断結果に応じて、以下のいずれかを案内する:
 
+- 既存プロジェクト(DRAFT未導入) → /draft-adopt — コードからソース層を逆生成して導入する
 - Phase 0 → /draft-concept — コンセプトを1ページで言語化する
 - Phase 1 → /draft-brainstorm — 壁打ちで画面とフローを具体化する
 - Phase 2 → /draft-design-spec — 設計仕様書をMarkdownに書き出す

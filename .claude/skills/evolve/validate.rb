@@ -93,9 +93,9 @@ pairs = {
   'templates/p-2/design-spec.md'                                   => 'draft-plugin/skills/design-spec/design-spec.template.md',
   'templates/p-2/screen_flow.mermaid'                              => 'draft-plugin/skills/design-spec/screen_flow.template.mermaid',
   'templates/p-3/project-playbook/templates/02-02_feature-design-doc.md' => 'draft-plugin/skills/feature/feature-design-doc.template.md',
-  'templates/p-4/CLAUDE.template.md'                               => 'draft-plugin/skills/prep/CLAUDE.template.md',
+  'templates/p-4/CLAUDE.template.md'                               => ['draft-plugin/skills/prep/CLAUDE.template.md', 'draft-plugin/skills/adopt/CLAUDE.template.md'],
   'templates/p-4/claude-code-prompts.md'                           => 'draft-plugin/skills/prep/claude-code-prompts.template.md',
-  'templates/p-4/doc-lint.sh'                                      => 'draft-plugin/skills/prep/doc-lint.template.sh',
+  'templates/p-4/doc-lint.sh'                                      => ['draft-plugin/skills/prep/doc-lint.template.sh', 'draft-plugin/skills/adopt/doc-lint.template.sh'],
 }
 Dir[File.join(ROOT, 'templates/p-3/project-playbook/templates/*.md')].each do |src|
   pairs[src.sub("#{ROOT}/", '')] = "draft-plugin/skills/playbook/templates/#{File.basename(src)}"
@@ -104,13 +104,14 @@ Dir[File.join(ROOT, 'templates/p-3/project-playbook/docs/tech-stacks-*.md')].eac
   pairs[src.sub("#{ROOT}/", '')] = "draft-plugin/skills/playbook/references/#{File.basename(src)}"
 end
 
-pairs.each do |src, dst|
+pairs.each do |src, dsts|
   s = File.join(ROOT, src)
-  d = File.join(ROOT, dst)
   next warnings << "原本が無い: #{src}" unless File.exist?(s)
-  next warnings << "コピーが無い: #{dst} (原本: #{src})" unless File.exist?(d)
-
-  warnings << "内容が乖離: #{src} <-> #{dst}" if File.read(s) != File.read(d)
+  Array(dsts).each do |dst|
+    d = File.join(ROOT, dst)
+    next warnings << "コピーが無い: #{dst} (原本: #{src})" unless File.exist?(d)
+    warnings << "内容が乖離: #{src} <-> #{dst}" if File.read(s) != File.read(d)
+  end
 end
 
 # --- 4. README(原典)の templates/ 参照の実在チェック ---
