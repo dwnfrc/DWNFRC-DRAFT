@@ -14,7 +14,11 @@ Claude Code のチャットに **1つずつ** コピペして使う。
 
 ---
 
+各Stepの見出し直下の `Status:` 行が進捗の記録先（完了時に `done YYYY-MM-DD` を記す。未着手は空欄）。/draft:prep を再実行して作り直すときは、この行と追記されたステップを新版へ移送する。
+
 ## Step 1: モノレポ骨格
+
+Status:
 
 ```
 docs/03_dev-setup.md のリポジトリ構成に従って、モノレポの骨格をセットアップしてください。
@@ -42,6 +46,8 @@ docker compose up -d + make db-push が通り、make doc-lint も通る状態を
 
 ## Step 2: DB スキーマ + シード
 
+Status:
+
 ```
 docs/02-01_system-design-doc.md の「データモデル」セクションにあるスキーマを実装してください。
 
@@ -59,6 +65,8 @@ make db-studio でデータが確認できる状態をゴールとする。
 
 ## Step 3: バックエンド API（CRUD）
 
+Status:
+
 ```
 docs/02-01_system-design-doc.md の「API設計」に従って、バックエンドのAPIを実装してください。
 
@@ -74,6 +82,8 @@ docs/02-01_system-design-doc.md の「API設計」に従って、バックエン
 ---
 
 ## Step 4: 認証
+
+Status:
 
 ```
 {認証ライブラリ}で認証を実装してください。
@@ -94,6 +104,8 @@ OAuthキー未設定でもアプリがクラッシュしないこと。
 
 ## Step 5: 共通UIコンポーネント
 
+Status:
+
 ```
 docs/{設計仕様書} のレイアウト設計システムに従って、
 再利用可能なレイアウトコンポーネントを実装してください。
@@ -107,6 +119,8 @@ docs/{設計仕様書} のレイアウト設計システムに従って、
 ---
 
 ## Step 6: コア画面
+
+Status:
 
 ```
 docs/{設計仕様書} の「コア画面詳細仕様」に従って、
@@ -122,6 +136,8 @@ docs/{設計仕様書} の「コア画面詳細仕様」に従って、
 
 ## Step 7: 残り画面
 
+Status:
+
 ```
 残りの画面を実装してください。
 
@@ -134,6 +150,8 @@ docs/{設計仕様書} の「コア画面詳細仕様」に従って、
 ---
 
 ## Step 8: インフラ + CI/CD
+
+Status:
 
 ```
 docs/04_deployment-procedure.md と docs/03_dev-setup.md に従って、
@@ -148,6 +166,8 @@ docs/04_deployment-procedure.md と docs/03_dev-setup.md に従って、
 ---
 
 ## Step 9: テスト + 仕上げ
+
+Status:
 
 ```
 テストとコード品質の仕上げをしてください。
