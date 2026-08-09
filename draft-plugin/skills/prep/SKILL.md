@@ -93,7 +93,7 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 | 6 | コア画面 | 最も重要な画面 |
 | 7 | 残り画面 | 2nd priority の画面群 |
 | 8 | インフラ + CI/CD | Terraform、GitHub Actions、Dockerfile |
-| 9 | テスト + 仕上げ | Unit、E2E、Lint |
+| 9 | テスト + 仕上げ | Unit、E2E、Lint、KPI計測の導入 |
 
 依存関係順（骨格 → DB → API → 認証 → UI → インフラ → テスト）を崩さない。プロジェクトの構成に応じてステップは調整してよい（例: IaC不使用ならStep 8を縮小）が、順序の原則は維持する。
 
