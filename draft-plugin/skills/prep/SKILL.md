@@ -12,6 +12,8 @@ Phase 5（実装）でClaude Codeに渡す2つのファイルを作る:
 1. **CLAUDE.md**（リポジトリルート）— Claude Codeが毎チャット自動で読むプロジェクトコンテキスト
 2. **docs/claude-code-prompts.md** — 1ステップずつ実行するステップ別プロンプト集
 
+あわせて執行の検出点を配置する: **scripts/doc-lint.sh**（決定論的整合の検査）と **.githooks/pre-commit**（コミット前の機械検出）。機械で判定できる違反は宣言ではなく検出点で捕まえる（README原典の執行原則）。
+
 「前提知識（CLAUDE.md）」と「作業指示（prompts.md）」を分離するのがこのフェーズの核心。混ぜてはいけない。
 
 この2ファイルは**派生層**にあたる: ソース層（design-spec、PRD、System Design Doc、dev-setup）から再生成可能で、ソースと食い違ったらソースが正。古くなったらこのスキルを再実行して作り直せばよい。
@@ -105,7 +107,22 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 
 **配置先は `docs/claude-code-prompts.md`。** Phase 5で `/draft:implement` がこのファイルを読んで順に実行する。
 
-### 4. ユーザーにレビューを促す
+### 4. 実行の検出点（doc-lintとpre-commitフック）を配置する
+
+1. このスキルのディレクトリにある `doc-lint.template.sh` を `scripts/doc-lint.sh` としてコピーし、実行権限を付ける（`chmod +x scripts/doc-lint.sh`）
+2. `.githooks/pre-commit` を作成し実行権限を付ける。内容は2行:
+
+   ```sh
+   #!/usr/bin/env sh
+   exec scripts/doc-lint.sh --staged
+   ```
+
+3. gitリポジトリなら `git config core.hooksPath .githooks` を実行する（未初期化ならStep 1のプロンプトが `make setup` 経由で配線する）
+4. prompts.md の Step 1 に、Makefileの `doc-lint` ターゲット（`scripts/doc-lint.sh --docs` を呼ぶ）と、`make setup` への `git config core.hooksPath .githooks` の組み込みが含まれていることを確認する
+
+検出点の役割分担: `--staged`（pre-commit）は先送りマーカー・ゴミ・`.gitkeep`・機械判定できるシークレット（`.env` のステージ、既知形式のトークン）の混入をコミット前に検出し、`--docs`（`make doc-lint`）はドキュメントと実体の乖離（存在しないmakeターゲットの参照・リンク切れ・FDD命名）を検出する。生コマンドの複製のような「言及か転記か」の文脈判断が要るものは機械化せず、レビューと /draft:guide の鮮度診断が担う。検出は機械、扱いの判断は先送りの原則とユーザー（意図して通すときは `git commit --no-verify`）。
+
+### 5. ユーザーにレビューを促す
 
 生成した2ファイルの要点（技術スタック、ステップ数と各ステップの内容）を簡潔に提示し、認識ズレがないか確認してもらう。特に「コア画面の選定」と「ステップ分割の粒度」はユーザーの意図と合っているかを確認する。
 
@@ -115,8 +132,9 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 |----------|----------|------|
 | `CLAUDE.md` | リポジトリルート | Claude Codeが自動読み込みする前提知識 |
 | `docs/claude-code-prompts.md` | docs/ | ステップ別プロンプト集（Phase 5の入力） |
+| `scripts/doc-lint.sh` + `.githooks/pre-commit` | リポジトリ | 決定論的整合の検出点（実行権限付き） |
 
-後工程に渡すのは常にファイル。口頭の合意で済ませず、必ずこの2ファイルに書き出す。
+後工程に渡すのは常にファイル。口頭の合意で済ませず、CLAUDE.md と claude-code-prompts.md に書き出す。
 
 ## 次のフェーズ
 

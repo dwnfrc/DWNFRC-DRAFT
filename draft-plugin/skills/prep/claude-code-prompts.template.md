@@ -28,12 +28,14 @@ docs/03_dev-setup.md のリポジトリ構成に従って、モノレポの骨�
 6. docker-compose.yml ({DB} コンテナ)
 7. .env.example
 8. .gitignore
-9. Makefile — docs/03_dev-setup.md の標準ターゲット（setup/dev/build/test/lint/format/db-*）を
-   実コマンドへの薄い委譲として定義する。以後の操作は全てmake経由で行う
+9. Makefile — docs/03_dev-setup.md の標準ターゲット（setup/dev/build/test/lint/format/db-*/doc-lint）を
+   実コマンドへの薄い委譲として定義する。以後の操作は全てmake経由で行う。
+   doc-lint は scripts/doc-lint.sh --docs を呼び、setup は git config core.hooksPath .githooks を含める
+   （scripts/doc-lint.sh と .githooks/pre-commit はPhase 4で配置済み）
 
 まだ画面やAPIの実装はしない。
 make dev で両方のdev serverが起動し、
-docker compose up -d + make db-push が通る状態をゴールとする。
+docker compose up -d + make db-push が通り、make doc-lint も通る状態をゴールとする。
 ```
 
 ---

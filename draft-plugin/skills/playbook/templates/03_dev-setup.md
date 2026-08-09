@@ -106,7 +106,7 @@ pnpm --filter web test:e2e
 
 | ターゲット | 説明 |
 |-----------|------|
-| `make setup` | 初回セットアップ（依存インストール、.env作成、DB起動） |
+| `make setup` | 初回セットアップ（依存インストール、.env作成、DB起動、gitフック設定） |
 | `make dev` | 開発サーバー起動 |
 | `make build` | 全パッケージビルド |
 | `make test` | 全テスト実行 |
@@ -117,10 +117,11 @@ pnpm --filter web test:e2e
 | `make db-migrate` | マイグレーション適用 |
 | `make db-seed` | デモデータ投入 |
 | `make db-studio` | DB GUI起動 |
+| `make doc-lint` | ドキュメントと実体の整合検査（`scripts/doc-lint.sh --docs`） |
 
 ```makefile
 # 例: 各ターゲットはスタックの実コマンドへ委譲する薄いラッパー
-.PHONY: setup dev build test lint format db-push db-generate db-migrate db-seed db-studio
+.PHONY: setup dev build test lint format db-push db-generate db-migrate db-seed db-studio doc-lint
 
 dev:
 	pnpm dev

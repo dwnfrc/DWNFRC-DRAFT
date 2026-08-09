@@ -56,7 +56,7 @@ Phase 5完了後 → イテレーション(変更サイクル):
 | 1 | 壁打ちで画面とフローが見えるレベルに具体化 | /draft-brainstorm | docs/brainstorm-notes.md |
 | 2 | 設計仕様書としてMarkdownに書き出す | /draft-design-spec | docs/design-spec.md, docs/screen_flow.mermaid |
 | 3 | 開発着手できる技術ドキュメント一式に変換 | /draft-playbook | docs/01_prd.md ほかPlaybook 6点 |
-| 4 | Claude Codeに渡すコンテキストとステップ別プロンプトを作成 | /draft-prep | CLAUDE.md, docs/claude-code-prompts.md |
+| 4 | Claude Codeに渡すコンテキストとステップ別プロンプトを作成 | /draft-prep | CLAUDE.md, docs/claude-code-prompts.md, scripts/doc-lint.sh |
 | 5 | プロンプト集を順に実行して動くアプリを完成 | /draft-implement | 動作するコード |
 | イテレーション(設計) | 変更の設計(FDD要否判定→規模判定→壁打ち→Feature Design Doc作成) | /draft-feature | docs/features/YYYYMMDD-HHMM_{機能名}.md |
 | イテレーション(実装) | FDDから実装(プロンプト生成→実装→Doc更新→コミット) | /draft-feature-implement | 実装コード + 更新されたdocs |
@@ -90,6 +90,15 @@ Phase 5完了後 → イテレーション(変更サイクル):
 
 - ファイルが「途中まで」の場合(例: Playbookが3点だけある)は、そのフェーズが未完了とみなし、該当スキルで続きから進めるよう案内する
 - ユーザーが自己申告した現在地とファイル診断が食い違う場合は、ファイルの状態を根拠に確認を取る(「design-spec.mdが見当たりませんが、Phase 2は完了していますか?」)
+
+### 2.5 鮮度診断(doc-reality)
+
+Phase 5以降のプロジェクトでは、現在地の診断に加えてドキュメントと実体の乖離を機械的に確認する(検出は機械、修正の判断はユーザー):
+
+1. `scripts/doc-lint.sh` があれば `scripts/doc-lint.sh --docs`(または `make doc-lint`)を実行し、結果を診断に含める
+2. 無ければ最低限を直接確認する: CLAUDE.md・docs/ が参照する `make <target>` がMakefileに実在するか、`docs/README.md` のリンク切れ、`docs/features/` の命名規則
+3. 機械判定できない乖離は目視で突き合わせる: `docs/03_dev-setup.md` の宣言ブランチ戦略とgit履歴の実態、移管済みのはずのデータモデル章がdesign-specに残っていないか、CLAUDE.md・dev-setupの生コマンドが説明のための言及でなく転記(操作手順の複製)になっていないか(真実源はMakefile)
+4. 検出した乖離は現在地の報告に含め、修正の判断と実施はユーザーに委ねる(更新先はREADME原典の所有権マップに従う)。doc-lint未配置の既存プロジェクトには /draft-prep の再実行(検出点の配置を含む)を選択肢として案内する
 
 ### 3. 診断結果を提示し、次のアクションを提案する
 

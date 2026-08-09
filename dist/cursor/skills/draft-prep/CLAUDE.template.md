@@ -44,6 +44,7 @@
 - `make db-migrate` — Apply migrations
 - `make db-seed` — Insert demo data
 - `make db-studio` — Open DB GUI
+- `make doc-lint` — Check docs↔reality drift (staged checks run via pre-commit hook)
 
 ## Docs
 

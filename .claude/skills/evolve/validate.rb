@@ -95,6 +95,7 @@ pairs = {
   'templates/p-3/project-playbook/templates/02-02_feature-design-doc.md' => 'draft-plugin/skills/feature/feature-design-doc.template.md',
   'templates/p-4/CLAUDE.template.md'                               => 'draft-plugin/skills/prep/CLAUDE.template.md',
   'templates/p-4/claude-code-prompts.md'                           => 'draft-plugin/skills/prep/claude-code-prompts.template.md',
+  'templates/p-4/doc-lint.sh'                                      => 'draft-plugin/skills/prep/doc-lint.template.sh',
 }
 Dir[File.join(ROOT, 'templates/p-3/project-playbook/templates/*.md')].each do |src|
   pairs[src.sub("#{ROOT}/", '')] = "draft-plugin/skills/playbook/templates/#{File.basename(src)}"
