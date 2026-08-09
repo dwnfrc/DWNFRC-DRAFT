@@ -125,6 +125,7 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 
 3. gitリポジトリなら `git config core.hooksPath .githooks` を実行する（未初期化ならStep 1のプロンプトが `make setup` 経由で配線する）
 4. prompts.md の Step 1 に、Makefileの `doc-lint` ターゲット（`scripts/doc-lint.sh --docs` を呼ぶ）と、`make setup` への `git config core.hooksPath .githooks` の組み込みが含まれていることを確認する
+5. `ln -s CLAUDE.md AGENTS.md` で `AGENTS.md` リンクを作る（既に実体の AGENTS.md がある場合は上書きせずユーザーに確認する）。AGENTS.md を読む他のツール（Cursor等）からも同じ前提知識が見えるようになる。実体は増やさない — 前提知識の正は CLAUDE.md 1つ
 
 検出点の役割分担: `--staged`（pre-commit）は先送りマーカー・ゴミ・`.gitkeep`・機械判定できるシークレット（`.env` のステージ、既知形式のトークン）の混入をコミット前に検出し、`--docs`（`make doc-lint`）はドキュメントと実体の乖離（存在しないmakeターゲットの参照・リンク切れ・FDD命名）を検出する。生コマンドの複製のような「言及か転記か」の文脈判断が要るものは機械化せず、レビューと /draft:guide の鮮度診断が担う。検出は機械、扱いの判断は先送りの原則とユーザー（意図して通すときは `git commit --no-verify`）。
 
@@ -139,6 +140,7 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 | `CLAUDE.md` | リポジトリルート | Claude Codeが自動読み込みする前提知識 |
 | `docs/claude-code-prompts.md` | docs/ | ステップ別プロンプト集（Phase 5の入力） |
 | `scripts/doc-lint.sh` + `.githooks/pre-commit` | リポジトリ | 決定論的整合の検出点（実行権限付き） |
+| `AGENTS.md` | リポジトリルート | `CLAUDE.md` へのシンボリックリンク（他ツールへの可搬性） |
 
 後工程に渡すのは常にファイル。口頭の合意で済ませず、CLAUDE.md と claude-code-prompts.md に書き出す。
 
