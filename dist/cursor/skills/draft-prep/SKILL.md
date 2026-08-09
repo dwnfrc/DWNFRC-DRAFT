@@ -109,7 +109,13 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 
 各Stepの見出し直下に `Status:` 行を含める（テンプレート準拠。進捗の記録先で、/draft-implement が完了時に `done` を記す）。
 
-**再実行（既存の `docs/claude-code-prompts.md` がある）時は、上書きの前に旧ファイルから状態を移送する:** 各Stepの `Status:`、スコープ分割で追記されたステップ、ブロッカー注記。派生層は捨てて作り直してよいが、進捗という状態はソースに無いため、移送せずに消すと戻らない（README原典の派生層ルール）。移送を終えてから新版で置き換える。
+**再実行（既存の `docs/claude-code-prompts.md` がある）時は、上書きの前に旧ファイルから状態を移送する。** 派生層は捨てて作り直してよいが、進捗という状態はソースに無いため、移送せずに消すと戻らない（README原典の派生層ルール）。移送するもの:
+
+- 各Stepの `Status:` 行。旧形式（チェックボックス `[x]`・`<!-- DONE: ... -->` コメント等、`Status:` 行導入前の完了マーク）しか無い場合は、対応するStepの `Status: done YYYY-MM-DD` に読み替える（日付が読めなければ `done` のみ）
+- スコープ分割などで追記されたステップ: 本文ごと、新版の依存関係上の正しい位置へ移す（末尾で番号を振り直してよい）
+- ブロッカー注記（「閉じられない理由」の名指し。Step本文や `Status:` 行の後ろに書かれている）: 該当Stepの `Status:` 行の直後に1行で残す
+
+移送を終えてから新版で置き換え、消えた状態が無いことを新旧の突き合わせで確認する。
 
 **配置先は `docs/claude-code-prompts.md`。** Phase 5で `/draft-implement` がこのファイルを読んで順に実行する。
 
@@ -123,7 +129,7 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
    exec scripts/doc-lint.sh --staged
    ```
 
-3. gitリポジトリなら `git config core.hooksPath .githooks` を実行する（未初期化ならStep 1のプロンプトが `make setup` 経由で配線する）
+3. gitリポジトリなら `git config core.hooksPath .githooks` を実行する（未初期化なら prompts.md の Step 1 が `git init` と配線を行う）
 4. prompts.md の Step 1 に、Makefileの `doc-lint` ターゲット（`scripts/doc-lint.sh --docs` を呼ぶ）と、`make setup` への `git config core.hooksPath .githooks` の組み込みが含まれていることを確認する
 5. `ln -s CLAUDE.md AGENTS.md` で `AGENTS.md` リンクを作る（既に実体の AGENTS.md がある場合は上書きせずユーザーに確認する）。AGENTS.md を読む他のツール（Cursor等）からも同じ前提知識が見えるようになる。実体は増やさない — 前提知識の正は CLAUDE.md 1つ
 

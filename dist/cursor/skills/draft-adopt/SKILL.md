@@ -58,7 +58,7 @@ Step 1の未確認一覧のうちユーザーが即答できそうな事項(意�
 /draft-prep の要領で配置する。**prompts.md は作らない** — あれは新規構築の足場であり、導入済みプロジェクトの変更は /draft-feature が担う:
 
 1. このスキルのディレクトリにある `CLAUDE.template.md` の構成に従って `CLAUDE.md` を生成する。**テンプレートの項目は実態に合わせて削除・修正する** — 具体的には、Docs節の `docs/claude-code-prompts.md` への言及は削除し、生成していないドキュメント(`02-02` / `04` / `05` 等)への言及も削る。実在しないファイルを参照するCLAUDE.mdを作らない。末尾のDRAFT版数スタンプも記録する(/draft-prep と同じ要領)。既存の CLAUDE.md / AGENTS.md がある場合は上書き前にユーザーへ確認する(マージも選択肢に)
-2. このスキルのディレクトリにある `doc-lint.template.sh` を `scripts/doc-lint.sh` にコピーして実行権限を付け、`.githooks/pre-commit` を作成して(内容は2行: `#!/usr/bin/env sh` と `exec scripts/doc-lint.sh --staged`)実行権限を付け、`git config core.hooksPath .githooks` を実行する。Makefileが無いプロジェクトでは `make doc-lint` の代わりに直接実行(`scripts/doc-lint.sh --docs`)を CLAUDE.md の Commands に書く
+2. このスキルのディレクトリにある `doc-lint.template.sh` を `scripts/doc-lint.sh` にコピーして実行権限を付け、`.githooks/pre-commit` を作成して(内容は2行: `#!/usr/bin/env sh` と `exec scripts/doc-lint.sh --staged`)実行権限を付け、`git config core.hooksPath .githooks` を実行する。Makefileが無いプロジェクトでは、CLAUDE.md の Commands 節を**全行**実態に合わせる: `make doc-lint` は直接実行(`scripts/doc-lint.sh --docs`)に、他の `make *` はプロジェクトの実コマンドに置換するか、実コマンドをラップする最小限のMakefileを作って参照を保つ。未定義の `make` 参照を残すと、配置した doc-lint 自身が初回の `--docs` で検出する
 3. `ln -s CLAUDE.md AGENTS.md` で `AGENTS.md` リンクを作る(既に実体の AGENTS.md がある場合は上書きせずユーザーに確認)
 
 ### Step 5: 独立レビュー

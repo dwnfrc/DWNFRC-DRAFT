@@ -102,7 +102,7 @@ Phase 5以降のプロジェクトでは、現在地の診断に加えてドキ�
 1. `scripts/doc-lint.sh` があれば `scripts/doc-lint.sh --docs`(または `make doc-lint`)を実行し、結果を診断に含める
 2. 無ければ最低限を直接確認する: CLAUDE.md・docs/ が参照する `make <target>` がMakefileに実在するか、`docs/README.md` のリンク切れ、`docs/features/` の命名規則
 3. 機械判定できない乖離は目視で突き合わせる: `docs/03_dev-setup.md` の宣言ブランチ戦略とgit履歴の実態、移管済みのはずのデータモデル章がdesign-specに残っていないか、CLAUDE.md・dev-setupの生コマンドが説明のための言及でなく転記(操作手順の複製)になっていないか(真実源はMakefile)
-4. `CLAUDE.md` 末尾の `DRAFT:` 版数スタンプを確認する。このプラグインの現行版(`../../.claude-plugin/plugin.json` の version)より古い、またはスタンプ自体が無い場合は、生成後に方法論が更新されていることを報告し、/draft-prep の再実行(新しい規定・検出点の反映)を選択肢として提案する
+4. `CLAUDE.md` 末尾の `DRAFT:` 版数スタンプを確認する。このプラグインの現行版(`../../.claude-plugin/plugin.json` の version)より古い、またはスタンプ自体が無い場合は、生成後に方法論が更新されていることを報告し、/draft-prep の再実行(新しい規定・検出点の反映)を選択肢として提案する。スタンプが日付形式(`generated YYYY-MM-DD`)の場合は版数比較ができないため、その日付以降に方法論の更新があった可能性として同様に案内する
 5. 検出した乖離は現在地の報告に含め、修正の判断と実施はユーザーに委ねる(更新先はREADME原典の所有権マップに従う)。doc-lint未配置の既存プロジェクトには /draft-prep の再実行(検出点の配置を含む)を選択肢として案内する
 
 ### 3. 診断結果を提示し、次のアクションを提案する
