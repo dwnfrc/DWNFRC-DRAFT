@@ -67,6 +67,8 @@ CLAUDE.mdは毎チャット読まれる前提知識。詳細はdocsへのパス�
 
 Commandsは標準makeターゲット（`make dev` 等）で書く。実コマンドの真実源はMakefileであり、CLAUDE.mdに生コマンド（pnpm等）を複製しない（プロジェクトで使わないターゲットは削る）。
 
+生成の最後に、末尾のスタンプへ生成時のDRAFT版数を記録する（このプラグインの `../../.claude-plugin/plugin.json` の version。取得できない環境では日付 `<!-- DRAFT: generated YYYY-MM-DD -->` で代替する）。方法論は生成後も進化するため、/draft-guide がこのスタンプとの差からバックフィルを提案する。
+
 **配置先はリポジトリルートの `CLAUDE.md`。** 既存のCLAUDE.mdがある場合は、上書きする前に必ずユーザーへ確認する（AskUserQuestionで「上書き / 既存内容とマージ / 中止」を提示する）。
 
 ### 3. docs/claude-code-prompts.md を生成する

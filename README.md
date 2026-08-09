@@ -287,6 +287,8 @@ PROJECT-PLAYBOOKテンプレートに従った6ファイル + `docs/README.md`�
 | `claude-code-prompts.md` | `docs/` | ステップ別プロンプト（派生層。docsと食い違ったらdocsが正） |
 | `scripts/doc-lint.sh` + `.githooks/pre-commit` | リポジトリ | 決定論的整合の検出点（コミット前検査とdoc-reality検査） |
 
+CLAUDE.md の末尾には生成時のDRAFT版数を記録する。方法論は生成後も進化するため、guide がこのスタンプと現行版の差から、再生成や検出点の追加（バックフィル）を提案できるようにする。
+
 ### Tips
 
 - **Step 1〜2は1セッションにまとめてもOK。** 骨格 + スキーマは依存が近い

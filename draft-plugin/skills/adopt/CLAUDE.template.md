@@ -79,3 +79,5 @@ Detailed specifications are in `docs/`. This file and `docs/claude-code-prompts.
 - {Linter} + {Formatter}
 - {コメント規約: 言語標準のdoc comment形式、プレフィックス（`NOTE:` 等）を使うかどうか。決めごとが無ければ既存コードの流儀に従う}
 - {その他のコーディング規約}
+
+<!-- DRAFT: v{生成時のプラグインバージョン} -->
