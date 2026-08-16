@@ -22,11 +22,11 @@ Phase 5（実装）でClaude Codeに渡す2つのファイルを作る:
 
 以下のPhase 2〜3の成果物を `docs/` からReadする:
 
-- 設計仕様書（`docs/design-spec.md` など。画面仕様・レイアウトシステム）
+- 設計仕様書（`docs/design-spec.md` など。画面仕様・デザインシステム）
 - `docs/01_prd.md`
 - `docs/02-01_system-design-doc.md`（アーキテクチャ、ADR、API設計、DBスキーマ）
 - `docs/03_dev-setup.md`（リポジトリ構成、コマンド、ブランチ戦略）
-- `docs/04_deployment-procedure.md` / `docs/05_operation-runbook.md`（あれば）
+- `docs/04_deployment-procedure.md` / `docs/05_operation-runbook.md` / `docs/06_design-tokens.json`（あれば）
 
 **成果物が見つからない場合はこのフェーズを実行しない。** フェーズを飛ばすと品質が落ちる:
 

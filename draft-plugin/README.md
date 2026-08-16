@@ -12,7 +12,7 @@
 | `/draft:concept` | Phase 0 | 対話でコンセプトを言語化 | `docs/concept.md` |
 | `/draft:brainstorm` | Phase 1 | 壁打ち（スコープ・画面・ロール・フローを選択式で具体化） | `docs/brainstorm-notes.md` |
 | `/draft:design-spec` | Phase 2 | 設計仕様書の作成 | `docs/design-spec.md`, `docs/screen_flow.mermaid` |
-| `/draft:playbook` | Phase 3 | 技術スタック確定 + 開発ドキュメント6点セット生成 | `docs/01_prd.md` 〜 `docs/05_operation-runbook.md`, `docs/README.md`, `.github/PULL_REQUEST_TEMPLATE.md` |
+| `/draft:playbook` | Phase 3 | 技術スタック確定 + 開発ドキュメント7点セット生成 | `docs/01_prd.md` 〜 `docs/06_design-tokens.json`, `docs/README.md`, `.github/PULL_REQUEST_TEMPLATE.md` |
 | `/draft:prep` | Phase 4 | 実装準備（コンテキスト + ステップ別プロンプト + 検出点） | `CLAUDE.md`, `docs/claude-code-prompts.md`, `scripts/doc-lint.sh` |
 | `/draft:implement` | Phase 5 | プロンプト集から1ステップ実装 + 動作確認 | 実装コード |
 | `/draft:feature` | イテレーション | 変更の設計(FDD要否判定→規模判定→壁打ち→Feature Design Doc作成) | `docs/features/YYYYMMDD-HHMM_{機能名}.md` |
@@ -72,7 +72,7 @@ draft-plugin/
     ├── concept/SKILL.md + concept.template.md
     ├── brainstorm/SKILL.md
     ├── design-spec/SKILL.md + design-spec.template.md + screen_flow.template.mermaid
-    ├── playbook/SKILL.md + templates/（6点） + references/（tech-stacks-aws/gcp）
+    ├── playbook/SKILL.md + templates/（7点） + references/（tech-stacks-aws/gcp）
     ├── prep/SKILL.md + CLAUDE.template.md + claude-code-prompts.template.md
     ├── implement/SKILL.md
     ├── feature/SKILL.md + feature-design-doc.template.md

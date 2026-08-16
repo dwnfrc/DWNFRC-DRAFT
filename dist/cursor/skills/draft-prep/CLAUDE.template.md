@@ -57,6 +57,7 @@ Detailed specifications are in `docs/`. This file and `docs/claude-code-prompts.
 - docs/03_dev-setup.md — Monorepo structure, setup steps, branch strategy
 - docs/04_deployment-procedure.md — Deploy, CI/CD, rollback
 - docs/05_operation-runbook.md — Monitoring, incident response
+- docs/06_design-tokens.json — Design tokens (DTCG形式。色・タイポグラフィ・余白などスタイリング値の正。実装のCSS変数・テーマ設定はここから派生させ、セマンティック層のみ参照する)
 
 ## Implementation Rules
 

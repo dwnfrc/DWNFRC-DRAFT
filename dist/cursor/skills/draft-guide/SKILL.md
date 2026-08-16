@@ -80,7 +80,7 @@ Phase 5完了後 → イテレーション(変更サイクル):
 | 3 | `docs/concept.md` が無い | Phase 0(コンセプト未作成) | /draft-concept |
 | 4 | `docs/concept.md` はあるが、`docs/brainstorm-notes.md` も `docs/design-spec.md` も無い | Phase 1(壁打ち未実施) | /draft-brainstorm |
 | 5 | `docs/design-spec.md` か `docs/screen_flow.mermaid` が無い | Phase 2(設計仕様書未作成・未完了) | /draft-design-spec |
-| 6 | Playbook 6点(`docs/01_prd.md`, `docs/02-01_system-design-doc.md`, `docs/02-02_feature-design-doc.md`, `docs/03_dev-setup.md`, `docs/04_deployment-procedure.md`, `docs/05_operation-runbook.md`)が揃っていない | Phase 3(開発ドキュメント未作成) | /draft-playbook |
+| 6 | Playbook 7点(`docs/01_prd.md`, `docs/02-01_system-design-doc.md`, `docs/02-02_feature-design-doc.md`, `docs/03_dev-setup.md`, `docs/04_deployment-procedure.md`, `docs/05_operation-runbook.md`, `docs/06_design-tokens.json`)が揃っていない(docs/README.md に省略の記録があるものは除く) | Phase 3(開発ドキュメント未作成) | /draft-playbook |
 | 7 | `CLAUDE.md`(リポジトリルート)か `docs/claude-code-prompts.md` が無い | Phase 4(実装準備未完了) | /draft-prep |
 | 8 | 実装コードが未完(ソースコードが無い、またはprompts.mdのステップが途中) | Phase 5(実装中) | /draft-implement |
 | 9 | 一通り動くものがある | イテレーション(変更サイクル) | /draft-feature |

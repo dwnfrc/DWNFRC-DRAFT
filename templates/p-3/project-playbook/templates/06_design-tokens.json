@@ -1,0 +1,109 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "デザイントークンの正。色・タイポグラフィ・余白・角丸・影・モーションの具体値はこのファイルが所有する（方針は design-spec のデザインシステム章）。実装が参照してよいのは semantic 層のみで、CSS変数・テーマ設定はこのファイルから派生として生成する。値はすべて例 — design-spec のビジュアルデザイン方針に合わせて書き換える。",
+  "primitive": {
+    "$description": "生の値のスケール。実装から直接参照しない（semantic 層を経由する）",
+    "color": {
+      "$type": "color",
+      "blue": {
+        "500": { "$value": { "colorSpace": "srgb", "components": [0.145, 0.388, 0.922], "hex": "#2563eb" } },
+        "700": { "$value": { "colorSpace": "srgb", "components": [0.114, 0.306, 0.847], "hex": "#1d4ed8" } }
+      },
+      "gray": {
+        "50": { "$value": { "colorSpace": "srgb", "components": [0.976, 0.98, 0.984], "hex": "#f9fafb" } },
+        "200": { "$value": { "colorSpace": "srgb", "components": [0.898, 0.906, 0.922], "hex": "#e5e7eb" } },
+        "600": { "$value": { "colorSpace": "srgb", "components": [0.294, 0.333, 0.388], "hex": "#4b5563" } },
+        "900": { "$value": { "colorSpace": "srgb", "components": [0.067, 0.094, 0.153], "hex": "#111827" } }
+      },
+      "red": {
+        "600": { "$value": { "colorSpace": "srgb", "components": [0.863, 0.149, 0.149], "hex": "#dc2626" } }
+      },
+      "white": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "hex": "#ffffff" } }
+    },
+    "font": {
+      "family": {
+        "sans": { "$type": "fontFamily", "$value": ["Inter", "Noto Sans JP", "sans-serif"] }
+      },
+      "size": {
+        "$type": "dimension",
+        "sm": { "$value": { "value": 0.875, "unit": "rem" } },
+        "md": { "$value": { "value": 1, "unit": "rem" } },
+        "lg": { "$value": { "value": 1.125, "unit": "rem" } },
+        "xl": { "$value": { "value": 1.5, "unit": "rem" } }
+      },
+      "weight": {
+        "$type": "fontWeight",
+        "regular": { "$value": 400 },
+        "bold": { "$value": 700 }
+      }
+    },
+    "space": {
+      "$type": "dimension",
+      "$description": "余白スケール。4pxの倍数",
+      "1": { "$value": { "value": 4, "unit": "px" } },
+      "2": { "$value": { "value": 8, "unit": "px" } },
+      "3": { "$value": { "value": 12, "unit": "px" } },
+      "4": { "$value": { "value": 16, "unit": "px" } },
+      "6": { "$value": { "value": 24, "unit": "px" } },
+      "8": { "$value": { "value": 32, "unit": "px" } }
+    },
+    "radius": {
+      "$type": "dimension",
+      "sm": { "$value": { "value": 4, "unit": "px" } },
+      "md": { "$value": { "value": 8, "unit": "px" } },
+      "full": { "$value": { "value": 9999, "unit": "px" } }
+    },
+    "duration": {
+      "$type": "duration",
+      "fast": { "$value": { "value": 150, "unit": "ms" } },
+      "normal": { "$value": { "value": 300, "unit": "ms" } }
+    }
+  },
+  "semantic": {
+    "$description": "用途の名前で参照する層。実装が参照してよいのはここだけ。値は primitive へのエイリアス。ダークモード対応時は color 配下を light / dark のグループに分ける",
+    "color": {
+      "$type": "color",
+      "accent": { "$value": "{primitive.color.blue.500}", "$description": "主要アクション・リンク" },
+      "accent-hover": { "$value": "{primitive.color.blue.700}" },
+      "background": { "$value": "{primitive.color.gray.50}" },
+      "surface": { "$value": "{primitive.color.white}", "$description": "カード・パネルの地" },
+      "border": { "$value": "{primitive.color.gray.200}" },
+      "text": { "$value": "{primitive.color.gray.900}" },
+      "text-muted": { "$value": "{primitive.color.gray.600}" },
+      "danger": { "$value": "{primitive.color.red.600}", "$description": "破壊的アクション・エラー表示" }
+    },
+    "typography": {
+      "$type": "typography",
+      "body": {
+        "$value": {
+          "fontFamily": "{primitive.font.family.sans}",
+          "fontSize": "{primitive.font.size.md}",
+          "fontWeight": "{primitive.font.weight.regular}",
+          "letterSpacing": { "value": 0, "unit": "px" },
+          "lineHeight": 1.6
+        }
+      },
+      "heading": {
+        "$value": {
+          "fontFamily": "{primitive.font.family.sans}",
+          "fontSize": "{primitive.font.size.xl}",
+          "fontWeight": "{primitive.font.weight.bold}",
+          "letterSpacing": { "value": 0, "unit": "px" },
+          "lineHeight": 1.3
+        }
+      }
+    },
+    "shadow": {
+      "$type": "shadow",
+      "card": {
+        "$value": {
+          "color": { "colorSpace": "srgb", "components": [0.067, 0.094, 0.153], "alpha": 0.1, "hex": "#111827" },
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 1, "unit": "px" },
+          "blur": { "value": 3, "unit": "px" },
+          "spread": { "value": 0, "unit": "px" }
+        }
+      }
+    }
+  }
+}

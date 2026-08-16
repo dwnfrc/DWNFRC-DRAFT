@@ -12,5 +12,6 @@
 | [templates/03_dev-setup.md](templates/03_dev-setup.md) | 環境構築、コマンド体系（makeターゲット）、ブランチ戦略、リリースフロー、トラブルシューティング |
 | [templates/04_deployment-procedure.md](templates/04_deployment-procedure.md) | デプロイ手順、リリース前チェックリスト、ロールバック、デプロイ後確認 |
 | [templates/05_operation-runbook.md](templates/05_operation-runbook.md) | モニタリング・ログ、監視とアラート、障害対応、定期メンテナンス |
+| [templates/06_design-tokens.json](templates/06_design-tokens.json) | デザイントークン（色・タイポグラフィ・余白・角丸・影・モーションの具体値。DTCG形式、プリミティブ+セマンティックの2層） |
 
 参考資料: [docs/tech-stacks-aws.md](docs/tech-stacks-aws.md) / [docs/tech-stacks-gcp.md](docs/tech-stacks-gcp.md)（技術選定の比較材料）
