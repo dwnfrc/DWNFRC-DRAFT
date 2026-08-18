@@ -72,7 +72,7 @@ draft-plugin/
     ├── concept/SKILL.md + concept.template.md
     ├── brainstorm/SKILL.md
     ├── design-spec/SKILL.md + design-spec.template.md + screen_flow.template.mermaid
-    ├── playbook/SKILL.md + templates/（7点） + references/（tech-stacks-aws/gcp）
+    ├── playbook/SKILL.md + templates/（7点） + references/（tech-stacks: architecture + プロバイダ別6枚）
     ├── prep/SKILL.md + CLAUDE.template.md + claude-code-prompts.template.md
     ├── implement/SKILL.md
     ├── feature/SKILL.md + feature-design-doc.template.md

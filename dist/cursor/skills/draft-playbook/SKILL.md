@@ -45,22 +45,29 @@ PROJECT-PLAYBOOKテンプレートに従った7ファイルを docs/ に生成�
 まずユーザーに技術スタックが決まっているか確認する。AskUserQuestionツールを使い、選択式で聞く。確認する項目:
 
 ```
+- アプリの形: [フルスタックFW一体型 / SPA+独立API / BaaS+フロント / etc.]
+- 通信方式: [REST / tRPC / GraphQL / +WebSocket / +SSE / etc.]
 - フロントエンド: [Next.js / React / etc.]
-- バックエンド: [NestJS / Express / etc.]
+- バックエンド: [Hono / NestJS / FastAPI / etc.]
 - DB: [PostgreSQL / MySQL / etc.]
-- 認証: [NextAuth / Firebase Auth / etc.]
-- ホスティング: [Cloud Run / Vercel / etc.]
-- IaC: [Terraform / なし]
+- 認証: [Auth.js / Supabase Auth / Clerk / etc.]
+- ホスティング: [Vercel / Cloud Run / Fly.io / Cloudflare / etc.]
+- IaC: [Terraform / 設定ファイルのみ / なし]
 ```
 
-**未定の場合**は一緒に決める。進め方:
+**未定の場合**は一緒に決める。このスキルのディレクトリにある参考資料を使い、アーキテクチャの軸から順に決める:
 
-1. まず方向性を聞く(例:「用途はポートフォリオ?事業?」「フロントはReact系?」「バックエンドの言語はTypeScript?」「クラウドはAWS?GCP?こだわりなし?」)。AskUserQuestionで選択式にし、1テーマずつ聞く。
-2. 方向性に応じて、このスキルのディレクトリにある参考資料をReadして選択肢の提示に活用する:
-   - `references/tech-stacks-aws.md` — AWS系スタックの選択肢と推奨
-   - `references/tech-stacks-gcp.md` — GCP系スタックの選択肢と推奨
-3. 用途・規模・ユーザーの経験に合わせて2〜3案を比較表(特徴・適している場合・コスト感)で提示し、推奨案とその根拠(なぜこの用途・規模ならこれを推すか)を明示して選んでもらう。根拠のない推奨は出さない(README原典の原則)。
-4. 決定した項目ごとに「なぜそれを選んだか」「捨てた選択肢とのトレードオフ」をメモしておく(Step 3のADRの材料になる)。
+1. `references/tech-stacks-architecture.md`(検討の入口)をReadする。アプリの形・通信方式・実行モデル・データ層・非同期処理・認証の軸と、プロバイダ選定マトリクスが載っている。
+2. 軸に沿って方向性を聞く(例:「アプリの形は?(一体型/SPA+API/BaaS)」「リアルタイム要件はある?」「用途はポートフォリオ?事業?」)。AskUserQuestionで選択式にし、1テーマずつ聞く。**プロバイダは最初に聞かない** — 形と通信方式が決まればマトリクスで候補が絞れる(ユーザーに指定・こだわりがあればそれを優先する)。
+3. 絞れた候補のプロバイダ別マッピングだけをReadして比較材料にする(全部読まない):
+   - `references/tech-stacks-aws.md` — 大規模・エンタープライズ・フル制御
+   - `references/tech-stacks-gcp.md` — Cloud Run中心。コンテナ常駐・ML/データ分析
+   - `references/tech-stacks-cloudflare.md` — エッジ・低コスト・グローバル
+   - `references/tech-stacks-flyio.md` — コンテナPaaS(Fly.io/Railway/Render)。WebSocket常駐
+   - `references/tech-stacks-vercel.md` — フロントエンドクラウド。フルスタックFW一体型
+   - `references/tech-stacks-supabase.md` — BaaS(Supabase/Firebase)。認証+CRUD+リアルタイム中心
+4. 用途・規模・ユーザーの経験に合わせて2〜3案を比較表(特徴・適している場合・コスト感)で提示し、推奨案とその根拠(なぜこの用途・規模ならこれを推すか)を明示して選んでもらう。根拠のない推奨は出さない(README原典の原則)。
+5. 決定した項目ごとに「なぜそれを選んだか」「捨てた選択肢とのトレードオフ」をメモしておく(Step 3のADRの材料になる)。通信方式・アーキテクチャの決定もADRの対象(System Design Docのアーキテクチャ概要・API設計の前提になる)。
 
 完璧を求めず先に進める。迷ったら推奨案で仮確定し、確定したスタック一覧をユーザーに提示して最終合意を取る。
 

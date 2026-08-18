@@ -14,4 +14,4 @@
 | [templates/05_operation-runbook.md](templates/05_operation-runbook.md) | モニタリング・ログ、監視とアラート、障害対応、定期メンテナンス |
 | [templates/06_design-tokens.json](templates/06_design-tokens.json) | デザイントークン（色・タイポグラフィ・余白・角丸・影・モーションの具体値。DTCG形式、プリミティブ+セマンティックの2層） |
 
-参考資料: [docs/tech-stacks-aws.md](docs/tech-stacks-aws.md) / [docs/tech-stacks-gcp.md](docs/tech-stacks-gcp.md)（技術選定の比較材料）
+参考資料（技術選定の比較材料）: [docs/tech-stacks-architecture.md](docs/tech-stacks-architecture.md)（検討の入口。アプリの形・通信方式・実行モデル等の軸とプロバイダ選定マトリクス）と、プロバイダ別マッピング [aws](docs/tech-stacks-aws.md) / [gcp](docs/tech-stacks-gcp.md) / [cloudflare](docs/tech-stacks-cloudflare.md) / [flyio](docs/tech-stacks-flyio.md) / [vercel](docs/tech-stacks-vercel.md) / [supabase](docs/tech-stacks-supabase.md)
