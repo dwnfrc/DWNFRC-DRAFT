@@ -66,6 +66,18 @@ ruby /path/to/DRAFT/scripts/install-agent-skills.rb --uninstall
 
 呼び出しの記号はクライアントごとに違う: Codex は `$draft-guide`、Cursor は `/draft-guide`。内容に応じた自動起動もある。迷ったら `draft-guide` から。
 
+#### Codexのセッション内から入れる
+
+リポジトリを手元に置かずに入れるなら、Codexに最初から入っている `skill-installer` にGitHubのURLを渡す:
+
+```
+$skill-installer install https://github.com/dwnfrc/DWNFRC-DRAFT/tree/main/dist/agents/skills/draft-guide
+```
+
+まとめて入れたいときは「dwnfrc/DWNFRC-DRAFT の `dist/agents/skills/` 配下のスキルを全部入れて」と頼めばよい(installerは複数パスを1回で処理する)。
+
+この経路には制約が2つある。入れ先が `~/.codex/skills/` で `.agents/skills/` ではないため**Codex専用**になる(Cursor等とは共有されない)。それと**同名のスキルが既にあると中断する**ので、更新するときは先に消すか、上のインストーラを `--link` で使う。
+
 派生は正から再生成できる。スキルを更新したら `ruby scripts/build-agent-skills.rb` で作り直す(`--check` で最新かを検証、`validate.rb` にも組み込み済み)。
 
 ## 構成
