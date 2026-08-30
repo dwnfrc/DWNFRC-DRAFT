@@ -7,14 +7,14 @@ description: "DRAFT外で作られた既存プロジェクトにDRAFTを導入�
 
 ## 目的
 
-DRAFT外で作られた(またはdocsが失われた)既存プロジェクトに、変更サイクル(/draft-feature)を回すための前提 — ソース層ドキュメントと検出点 — を用意する。
+DRAFT外で作られた(またはdocsが失われた)既存プロジェクトに、変更サイクル(draft-feature)を回すための前提 — ソース層ドキュメントと検出点 — を用意する。
 
 新規構築のPhase 0〜5は踏み直さない。コードから読み取れる「現状」を逆生成し、コードから読み取れない「意図」をヒアリングで補い、ユーザー検証を経て正とする。
 
 ## 前提(入力)
 
 - 既存のソースコード(gitリポジトリ推奨)
-- docs/ にDRAFTのソース層(`design-spec.md`、`02-01_system-design-doc.md`)が無いこと。既にある場合はこのスキルの対象外なので、/draft-guide で現在地を診断する
+- docs/ にDRAFTのソース層(`design-spec.md`、`02-01_system-design-doc.md`)が無いこと。既にある場合はこのスキルの対象外なので、draft-guide で現在地を診断する
 - 既存のREADMEや設計メモがあれば逆生成の材料として活用する。**ただし現状の正はコード。** 既存docsとコードが食い違ったらコードに従い、古い記述をそのまま転記しない(古い理想の混入は、捏造と同じ穴を別経路で開ける)
 
 ## 進め方
@@ -55,9 +55,9 @@ Step 1の未確認一覧のうちユーザーが即答できそうな事項(意�
 
 ### Step 4: CLAUDE.md と検出点の配置
 
-/draft-prep の要領で配置する。**prompts.md は作らない** — あれは新規構築の足場であり、導入済みプロジェクトの変更は /draft-feature が担う:
+draft-prep の要領で配置する。**prompts.md は作らない** — あれは新規構築の足場であり、導入済みプロジェクトの変更は draft-feature が担う:
 
-1. このスキルのディレクトリにある `CLAUDE.template.md` の構成に従って `CLAUDE.md` を生成する。**テンプレートの項目は実態に合わせて削除・修正する** — 具体的には、Docs節の `docs/claude-code-prompts.md` への言及は削除し、生成していないドキュメント(`02-02` / `04` / `05` 等)への言及も削る。実在しないファイルを参照するCLAUDE.mdを作らない。末尾のDRAFT版数スタンプも記録する(/draft-prep と同じ要領)。既存の CLAUDE.md / AGENTS.md がある場合は上書き前にユーザーへ確認する(マージも選択肢に)
+1. このスキルのディレクトリにある `CLAUDE.template.md` の構成に従って `CLAUDE.md` を生成する。**テンプレートの項目は実態に合わせて削除・修正する** — 具体的には、Docs節の `docs/claude-code-prompts.md` への言及は削除し、生成していないドキュメント(`02-02` / `04` / `05` 等)への言及も削る。実在しないファイルを参照するCLAUDE.mdを作らない。末尾のDRAFT版数スタンプも記録する(draft-prep と同じ要領)。既存の CLAUDE.md / AGENTS.md がある場合は上書き前にユーザーへ確認する(マージも選択肢に)
 2. このスキルのディレクトリにある `doc-lint.template.sh` を `scripts/doc-lint.sh` にコピーして実行権限を付け、`.githooks/pre-commit` を作成して(内容は2行: `#!/usr/bin/env sh` と `exec scripts/doc-lint.sh --staged`)実行権限を付け、`git config core.hooksPath .githooks` を実行する。Makefileが無いプロジェクトでは、CLAUDE.md の Commands 節を**全行**実態に合わせる: `make doc-lint` は直接実行(`scripts/doc-lint.sh --docs`)に、他の `make *` はプロジェクトの実コマンドに置換するか、実コマンドをラップする最小限のMakefileを作って参照を保つ。未定義の `make` 参照を残すと、配置した doc-lint 自身が初回の `--docs` で検出する
 3. `ln -s CLAUDE.md AGENTS.md` で `AGENTS.md` リンクを作る(既に実体の AGENTS.md がある場合は上書きせずユーザーに確認)
 
@@ -92,7 +92,7 @@ Step 1の未確認一覧のうちユーザーが即答できそうな事項(意�
 
 ## 次のフェーズ
 
-/draft-feature で変更サイクルを開始する(FDD要否判定から)。`concept.md` / `brainstorm-notes.md` は作らない — アーカイブ層は空から始まり、以後の経緯はFDDとgit履歴が蓄積する。
+draft-feature で変更サイクルを開始する(FDD要否判定から)。`concept.md` / `brainstorm-notes.md` は作らない — アーカイブ層は空から始まり、以後の経緯はFDDとgit履歴が蓄積する。
 
 ## 注意
 
@@ -101,4 +101,4 @@ Step 1の未確認一覧のうちユーザーが即答できそうな事項(意�
 - **未確認は事実1件ごとに書く。** 章単位の「詳細は未確認」に丸めると、レビューも検証も素通りする
 - **フェーズを遡らない。** concept / brainstorm / prompts.md は新規構築の足場であり、動いているプロダクトには不要
 - **データモデル章をdesign-specに作らない。** 所有はSystem Design Doc(README原典の移管規定)
-- **導入だけで完了とする。** 調査中に見つけたバグや改善はこのスキルでは直さない。導入完了後に /draft-feature で変更サイクルに乗せる(1サイクル1目的)
+- **導入だけで完了とする。** 調査中に見つけたバグや改善はこのスキルでは直さない。導入完了後に draft-feature で変更サイクルに乗せる(1サイクル1目的)

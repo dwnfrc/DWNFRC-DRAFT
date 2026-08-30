@@ -42,23 +42,31 @@ claude --plugin-dir /path/to/DRAFT/draft-plugin
 
 インストール後は `/reload-plugins` または再起動で反映される。
 
-### Cursorで使う
+### Codex / Cursor で使う(Agent Skills)
 
-Cursor 2.4+ は Claude Code と同じ `SKILL.md` 形式の Agent Skills をネイティブに読み込む。Cursor用は `draft-plugin/skills/` を正として [`dist/cursor/skills/`](../dist/cursor/skills/) に**生成した派生**を用意してある(名前空間だけ `/draft:concept` → `/draft-concept` に変換済み)。
+Codex・Cursor など Agent Skills 対応クライアントは、Claude Code と同じ `SKILL.md` 形式を `.agents/skills/`(リポジトリ単位)と `~/.agents/skills/`(ユーザー単位)から読み込む。これらに向けて、`draft-plugin/skills/` を正とする**生成した派生**を [`dist/agents/skills/`](../dist/agents/skills/) に用意してある(プラグイン名前空間 `/draft:concept` をフラットな `draft-concept` に変換済み)。
 
-導入は、この一式を Cursor のスキル探索先へコピーするだけ:
+導入はこのリポジトリのインストーラで行う:
 
 ```bash
-# プロジェクト単位(そのリポジトリでだけ有効)
-cp -R /path/to/DRAFT/dist/cursor/skills/* your-project/.cursor/skills/
+# 全プロジェクト共通(ユーザー単位) — ~/.agents/skills/ に入れる
+ruby /path/to/DRAFT/scripts/install-agent-skills.rb
 
-# 全プロジェクト共通(ユーザー単位)
-cp -R /path/to/DRAFT/dist/cursor/skills/* ~/.cursor/skills/
+# プロジェクト単位 — そのリポジトリの .agents/skills/ に入れる
+ruby /path/to/DRAFT/scripts/install-agent-skills.rb --project /path/to/your-project
+
+# コピーではなくシンボリックリンクで入れる(DRAFT側の更新が即反映される)
+ruby /path/to/DRAFT/scripts/install-agent-skills.rb --link
+
+# 取り除く
+ruby /path/to/DRAFT/scripts/install-agent-skills.rb --uninstall
 ```
 
-Cursorのチャットで `/draft-guide` のように呼ぶか、内容に応じて自動起動する。迷ったら `/draft-guide` から。
+`--dry-run` で行う操作だけを確認できる。`--dest PATH` を使えば `~/.cursor/skills/` のような別の探索先にも入れられる。インストーラは導入前に派生が最新かを確認し、古ければ再生成してから入れる。
 
-派生は正から再生成できる。スキルを更新したら `ruby scripts/build-cursor-skills.rb` で作り直す(`--check` で最新かを検証、`validate.rb` にも組み込み済み)。
+呼び出しの記号はクライアントごとに違う: Codex は `$draft-guide`、Cursor は `/draft-guide`。内容に応じた自動起動もある。迷ったら `draft-guide` から。
+
+派生は正から再生成できる。スキルを更新したら `ruby scripts/build-agent-skills.rb` で作り直す(`--check` で最新かを検証、`validate.rb` にも組み込み済み)。
 
 ## 構成
 
@@ -83,4 +91,4 @@ draft-plugin/
 
 テンプレートの原本は [`../templates/`](../templates/) にあり、各スキルフォルダには実行時に参照するコピーを同梱している。方法論の原典は [`../README.md`](../README.md)。
 
-Cursor用の配布物 [`../dist/cursor/skills/`](../dist/cursor/skills/) は `skills/` から `scripts/build-cursor-skills.rb` で生成する派生。手で編集せず、正(`skills/`)を直して再生成する。
+Agent Skills対応クライアント(Codex・Cursor等)向けの配布物 [`../dist/agents/skills/`](../dist/agents/skills/) は `skills/` から `scripts/build-agent-skills.rb` で生成する派生。手で編集せず、正(`skills/`)を直して再生成する。導入は `scripts/install-agent-skills.rb`。

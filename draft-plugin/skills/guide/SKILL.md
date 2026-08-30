@@ -56,7 +56,7 @@ Phase 5完了後 → イテレーション(変更サイクル):
 | 1 | 壁打ちで画面とフローが見えるレベルに具体化 | /draft:brainstorm | docs/brainstorm-notes.md |
 | 2 | 設計仕様書としてMarkdownに書き出す | /draft:design-spec | docs/design-spec.md, docs/screen_flow.mermaid |
 | 3 | 開発着手できる技術ドキュメント一式に変換 | /draft:playbook | docs/01_prd.md ほかPlaybook 6点 |
-| 4 | Claude Codeに渡すコンテキストとステップ別プロンプトを作成 | /draft:prep | CLAUDE.md, docs/claude-code-prompts.md, scripts/doc-lint.sh |
+| 4 | 実装エージェントに渡すコンテキストとステップ別プロンプトを作成 | /draft:prep | CLAUDE.md, docs/claude-code-prompts.md, scripts/doc-lint.sh |
 | 5 | プロンプト集を順に実行して動くアプリを完成 | /draft:implement | 動作するコード |
 | イテレーション(設計) | 変更の設計(FDD要否判定→規模判定→壁打ち→Feature Design Doc作成) | /draft:feature | docs/features/YYYYMMDD-HHMM_{機能名}.md |
 | イテレーション(実装) | FDDから実装(プロンプト生成→実装→Doc更新→コミット) | /draft:feature-implement | 実装コード + 更新されたdocs |
@@ -129,7 +129,7 @@ Phase 5以降のプロジェクトでは、現在地の診断に加えてドキ�
 | 動作確認せずに次のステップへ進む | エラーが積み上がって修正困難 | 各ステップ後に必ず動作確認 |
 | 変更の壁打ちで設計仕様書を読ませない | 既存設計と矛盾する設計が出てくる | 設計仕様書 + System Design Docを必ず入力にする |
 | 実装後にソースDocを更新しない | 次の壁打ちで古い情報を元に設計してしまう | 実装プロンプトにドキュメント更新指示(所有権マップ準拠)を組み込む |
-| Feature Design DocをそのままClaude Codeに投げる | 実装に必要な依存順・検証可能なゴール・スコープ境界が無い（役割が違う） | 実装プロンプトを生成してから渡す |
+| Feature Design Docをそのまま実装エージェントに投げる | 実装に必要な依存順・検証可能なゴール・スコープ境界が無い（役割が違う） | 実装プロンプトを生成してから渡す |
 | 同じ事実を複数のドキュメントに書く | 更新漏れで食い違い、どれが正か不明になる | 所有ドキュメントを1つ決め、他は転記せず参照する |
 | 既存プロジェクトでソース層なしのまま変更サイクルを回す | 壁打ちの入力が無く、既存設計と矛盾する変更が積み上がる | /draft:adopt でソース層を逆生成してから /draft:feature |
 

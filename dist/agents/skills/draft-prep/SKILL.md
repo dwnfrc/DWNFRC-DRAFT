@@ -7,9 +7,9 @@ description: DRAFTフレームワークのPhase 4「実装準備」。Phase 2〜
 
 ## 目的
 
-Phase 5（実装）でClaude Codeに渡す2つのファイルを作る:
+Phase 5（実装）で実装エージェントに渡す2つのファイルを作る:
 
-1. **CLAUDE.md**（リポジトリルート）— Claude Codeが毎チャット自動で読むプロジェクトコンテキスト
+1. **CLAUDE.md**（リポジトリルート）— AIエージェントが毎チャット自動で読むプロジェクトコンテキスト（Claude Code は `CLAUDE.md`、Codex は `AGENTS.md` リンク経由で同じ実体を読む）
 2. **docs/claude-code-prompts.md** — 1ステップずつ実行するステップ別プロンプト集
 
 あわせて執行の検出点を配置する: **scripts/doc-lint.sh**（決定論的整合の検査）と **.githooks/pre-commit**（コミット前の機械検出）。機械で判定できる違反は宣言ではなく検出点で捕まえる（README原典の執行原則）。
@@ -30,9 +30,9 @@ Phase 5（実装）でClaude Codeに渡す2つのファイルを作る:
 
 **成果物が見つからない場合はこのフェーズを実行しない。** フェーズを飛ばすと品質が落ちる:
 
-- 設計仕様書がない → `/draft-design-spec`（Phase 2）を案内する
-- 開発ドキュメント（PRD / System Design Doc）がない → `/draft-playbook`（Phase 3）を案内する
-- System Design Docに技術スタックの確定（ADR）がない → `/draft-playbook` に戻って技術選定を確定させるよう案内する。技術スタックが未確定のままCLAUDE.mdを書いてはいけない
+- 設計仕様書がない → `draft-design-spec`（Phase 2）を案内する
+- 開発ドキュメント（PRD / System Design Doc）がない → `draft-playbook`（Phase 3）を案内する
+- System Design Docに技術スタックの確定（ADR）がない → `draft-playbook` に戻って技術選定を確定させるよう案内する。技術スタックが未確定のままCLAUDE.mdを書いてはいけない
 
 ## 進め方
 
@@ -67,7 +67,7 @@ CLAUDE.mdは毎チャット読まれる前提知識。詳細はdocsへのパス�
 
 Commandsは標準makeターゲット（`make dev` 等）で書く。実コマンドの真実源はMakefileであり、CLAUDE.mdに生コマンド（pnpm等）を複製しない（プロジェクトで使わないターゲットは削る）。
 
-生成の最後に、末尾のスタンプへ生成時のDRAFT版数を記録する（このプラグインの `../../.claude-plugin/plugin.json` の version。取得できない環境では日付 `<!-- DRAFT: generated YYYY-MM-DD -->` で代替する）。方法論は生成後も進化するため、/draft-guide がこのスタンプとの差からバックフィルを提案する。
+生成の最後に、末尾のスタンプへ生成時のDRAFT版数を記録する（このプラグインの `../../.claude-plugin/plugin.json` の version。取得できない環境では日付 `<!-- DRAFT: generated YYYY-MM-DD -->` で代替する）。方法論は生成後も進化するため、draft-guide がこのスタンプとの差からバックフィルを提案する。
 
 **配置先はリポジトリルートの `CLAUDE.md`。** 既存のCLAUDE.mdがある場合は、上書きする前に必ずユーザーへ確認する（AskUserQuestionで「上書き / 既存内容とマージ / 中止」を提示する）。
 
@@ -80,7 +80,7 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 | 原則 | 理由 |
 |------|------|
 | **1ステップ = 1チャット** | コンテキスト劣化（自動要約による詳細の損失・注意の希釈）の防止 |
-| **ゴールを「動作確認可能な状態」で定義** | Claude Codeが完了判断できる |
+| **ゴールを「動作確認可能な状態」で定義** | AIエージェントが完了判断できる |
 | **参照すべきdocsファイルを明示** | 必要な情報だけ読ませる |
 | **「まだやらないこと」を明示** | スコープクリープ防止 |
 | **依存関係順に並べる** | 前のステップの成果物が次の前提になる |
@@ -107,7 +107,7 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 - Step 5のレイアウトパターン、Step 6のコア画面、Step 7の残り画面は設計仕様書の画面一覧・コア画面詳細仕様から具体名で列挙する
 - 各ステップのゴールは「`make dev` で両サーバーが起動する」「curlで各エンドポイントが200を返す」のように、コマンドや操作で確認できる形で書く（コマンドは標準makeターゲットで書く）
 
-各Stepの見出し直下に `Status:` 行を含める（テンプレート準拠。進捗の記録先で、/draft-implement が完了時に `done` を記す）。
+各Stepの見出し直下に `Status:` 行を含める（テンプレート準拠。進捗の記録先で、draft-implement が完了時に `done` を記す）。
 
 **再実行（既存の `docs/claude-code-prompts.md` がある）時は、上書きの前に旧ファイルから状態を移送する。** 派生層は捨てて作り直してよいが、進捗という状態はソースに無いため、移送せずに消すと戻らない（README原典の派生層ルール）。移送するもの:
 
@@ -117,7 +117,7 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 
 移送を終えてから新版で置き換え、消えた状態が無いことを新旧の突き合わせで確認する。
 
-**配置先は `docs/claude-code-prompts.md`。** Phase 5で `/draft-implement` がこのファイルを読んで順に実行する。
+**配置先は `docs/claude-code-prompts.md`。** Phase 5で `draft-implement` がこのファイルを読んで順に実行する。
 
 ### 4. 実行の検出点（doc-lintとpre-commitフック）を配置する
 
@@ -131,9 +131,9 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 
 3. gitリポジトリなら `git config core.hooksPath .githooks` を実行する（未初期化なら prompts.md の Step 1 が `git init` と配線を行う）
 4. prompts.md の Step 1 に、Makefileの `doc-lint` ターゲット（`scripts/doc-lint.sh --docs` を呼ぶ）と、`make setup` への `git config core.hooksPath .githooks` の組み込みが含まれていることを確認する
-5. `ln -s CLAUDE.md AGENTS.md` で `AGENTS.md` リンクを作る（既に実体の AGENTS.md がある場合は上書きせずユーザーに確認する）。AGENTS.md を読む他のツール（Cursor等）からも同じ前提知識が見えるようになる。実体は増やさない — 前提知識の正は CLAUDE.md 1つ
+5. `ln -s CLAUDE.md AGENTS.md` で `AGENTS.md` リンクを作る（既に実体の AGENTS.md がある場合は上書きせずユーザーに確認する）。AGENTS.md を読む他のエージェント（Codex・Cursor等）からも同じ前提知識が見えるようになる。実体は増やさない — 前提知識の正は CLAUDE.md 1つ
 
-検出点の役割分担: `--staged`（pre-commit）は先送りマーカー・ゴミ・`.gitkeep`・機械判定できるシークレット（`.env` のステージ、既知形式のトークン）の混入をコミット前に検出し、`--docs`（`make doc-lint`）はドキュメントと実体の乖離（存在しないmakeターゲットの参照・リンク切れ・FDD命名）を検出する。生コマンドの複製のような「言及か転記か」の文脈判断が要るものは機械化せず、レビューと /draft-guide の鮮度診断が担う。検出は機械、扱いの判断は先送りの原則とユーザー（意図して通すときは `git commit --no-verify`）。
+検出点の役割分担: `--staged`（pre-commit）は先送りマーカー・ゴミ・`.gitkeep`・機械判定できるシークレット（`.env` のステージ、既知形式のトークン）の混入をコミット前に検出し、`--docs`（`make doc-lint`）はドキュメントと実体の乖離（存在しないmakeターゲットの参照・リンク切れ・FDD命名）を検出する。生コマンドの複製のような「言及か転記か」の文脈判断が要るものは機械化せず、レビューと draft-guide の鮮度診断が担う。検出は機械、扱いの判断は先送りの原則とユーザー（意図して通すときは `git commit --no-verify`）。
 
 ### 5. ユーザーにレビューを促す
 
@@ -143,16 +143,16 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 
 | ファイル | 配置場所 | 用途 |
 |----------|----------|------|
-| `CLAUDE.md` | リポジトリルート | Claude Codeが自動読み込みする前提知識 |
+| `CLAUDE.md` | リポジトリルート | AIエージェントが自動読み込みする前提知識 |
 | `docs/claude-code-prompts.md` | docs/ | ステップ別プロンプト集（Phase 5の入力） |
 | `scripts/doc-lint.sh` + `.githooks/pre-commit` | リポジトリ | 決定論的整合の検出点（実行権限付き） |
-| `AGENTS.md` | リポジトリルート | `CLAUDE.md` へのシンボリックリンク（他ツールへの可搬性） |
+| `AGENTS.md` | リポジトリルート | `CLAUDE.md` へのシンボリックリンク（Codex等への可搬性） |
 
 後工程に渡すのは常にファイル。口頭の合意で済ませず、CLAUDE.md と claude-code-prompts.md に書き出す。
 
 ## 次のフェーズ
 
-実装準備が完了したら、Phase 5（実装）へ進む。新しいセッションを開始し `/draft-implement` を実行するよう案内する（CLAUDE.mdを新しいセッションで自動読み込みさせるため。ユーザーが同一セッションで続けたい場合はそれに従う）。
+実装準備が完了したら、Phase 5（実装）へ進む。新しいセッションを開始し `draft-implement` を実行するよう案内する（CLAUDE.mdを新しいセッションで自動読み込みさせるため。ユーザーが同一セッションで続けたい場合はそれに従う）。
 
 ## 注意
 
@@ -160,6 +160,6 @@ Commandsは標準makeターゲット（`make dev` 等）で書く。実コマン
 - **UI実装ステップが最も重い。** コア画面と残り画面は必ず別ステップに分ける
 - **インフラは後回しで良い。** ローカルで動くものを先に作る構成にする
 - **CLAUDE.mdにステップ別指示を書かない。** 毎回読まれるので情報過多になる。CLAUDE.md = 前提知識、claude-code-prompts.md = 指示、という分担を崩さない
-- **技術スタックをこのフェーズ以降で変えない。** 変えるとドキュメント全体の書き直しになる。未確定ならPhase 3（/draft-playbook）に戻す
+- **技術スタックをこのフェーズ以降で変えない。** 変えるとドキュメント全体の書き直しになる。未確定ならPhase 3（draft-playbook）に戻す
 - **全ステップを1チャットで実行させる構成にしない。** コンテキストの肥大で品質が落ちる。1ステップ = 1チャットの粒度で書く
 - **各ステップのゴールに動作確認を含める。** 動作確認せずに次へ進むとエラーが積み上がって修正困難になる

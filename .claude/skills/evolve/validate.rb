@@ -131,15 +131,15 @@ skill_names.each do |name|
   errors << "draft-plugin/README.md: 構成ツリーに #{name}/SKILL.md が無い" unless plugin_readme.match?(%r{(?<![\w-])#{Regexp.escape(name)}/SKILL\.md})
 end
 
-# --- 6. Cursor派生スキルの同期(dist/cursor/skills は draft-plugin/skills から生成する派生) ---
-gen = File.join(ROOT, 'scripts', 'build-cursor-skills.rb')
+# --- 6. Agent Skills派生の同期(dist/agents/skills は draft-plugin/skills から生成する派生) ---
+gen = File.join(ROOT, 'scripts', 'build-agent-skills.rb')
 if File.exist?(gen)
   out = `ruby #{gen} --check 2>&1`
   unless $?.success?
-    out.each_line { |l| warnings << "Cursor派生: #{l.strip}" unless l.strip.empty? }
+    out.each_line { |l| warnings << "Agent Skills派生: #{l.strip}" unless l.strip.empty? }
   end
 else
-  warnings << "Cursor生成スクリプトが無い: scripts/build-cursor-skills.rb"
+  warnings << "Agent Skills生成スクリプトが無い: scripts/build-agent-skills.rb"
 end
 
 # --- 結果 ---

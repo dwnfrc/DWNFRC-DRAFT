@@ -84,7 +84,7 @@ DRAFTの根本思想: **ドキュメントがソースであり、実装はそ�
 | 層 | 対象 |
 |----|------|
 | **ソース** | このREADME（方法論のspec）と `templates/`（テンプレート原本） |
-| **派生** | `draft-plugin/` のスキル群とテンプレートコピー — READMEの**実装**。方法論のspecで食い違ったらREADMEが正（実行の詳細 — 対話手順・ツール使用 — はスキルが固有に所有する）。Claude Codeプラグインとして配布される |
+| **派生** | `draft-plugin/` のスキル群とテンプレートコピー — READMEの**実装**。方法論のspecで食い違ったらREADMEが正（実行の詳細 — 対話手順・ツール使用 — はスキルが固有に所有する）。Claude Codeプラグインと、Agent Skills対応クライアント（Codex・Cursor等）向けの生成派生として配布される（配布形態は `draft-plugin/README.md` が所有） |
 | **アーカイブ** | 変更の経緯（git履歴）と `manual-flow.md`（初期実装時点の手動フローのスナップショット。更新しない） |
 
 方法論の本文（この節の外）は実装のスキル名を参照しない。工程とスキルの対応は `draft-plugin/README.md` のスキル表が所有する（事実の所有権をこのREADME自身にも適用する。specが実装名を知らなければ、スキルの改名・分割は本文に波及しない）。
@@ -251,7 +251,7 @@ PROJECT-PLAYBOOKテンプレートに従った7ファイル + `docs/README.md`�
 
 | テンプレート | 用途 |
 |-------------|------|
-| `templates/p-4/CLAUDE.template.md` | Claude Codeが自動読み込みするプロジェクトコンテキスト |
+| `templates/p-4/CLAUDE.template.md` | AIエージェントが自動読み込みするプロジェクトコンテキスト |
 | `templates/p-4/claude-code-prompts.md` | ステップ別プロンプト集の構成ガイド |
 | `templates/p-4/doc-lint.sh` | 決定論的整合の検出スクリプト（実行の検出点として配置） |
 
@@ -273,7 +273,7 @@ PROJECT-PLAYBOOKテンプレートに従った7ファイル + `docs/README.md`�
 | 原則 | 理由 |
 |------|------|
 | **1ステップ = 1チャット** | コンテキスト劣化（自動要約による詳細の損失・注意の希釈）の防止 |
-| **ゴールを「動作確認可能な状態」で定義** | Claude Codeが完了判断できる |
+| **ゴールを「動作確認可能な状態」で定義** | AIエージェントが完了判断できる |
 | **参照すべきdocsファイルを明示** | 必要な情報だけ読ませる |
 | **「まだやらないこと」を明示** | スコープクリープ防止（縛るのは未着手の機能。見つかった欠陥の放置理由にはならない） |
 | **依存関係順に並べる** | 前のステップの成果物が次の前提になる |
@@ -296,10 +296,10 @@ PROJECT-PLAYBOOKテンプレートに従った7ファイル + `docs/README.md`�
 
 | ファイル | 配置場所 | 用途 |
 |----------|----------|------|
-| `CLAUDE.md` | リポジトリルート | Claude Codeが自動読み込み |
+| `CLAUDE.md` | リポジトリルート | AIエージェントが自動読み込みする前提知識（実体はこの1つ） |
 | `claude-code-prompts.md` | `docs/` | ステップ別プロンプト（派生層。docsと食い違ったらdocsが正） |
 | `scripts/doc-lint.sh` + `.githooks/pre-commit` | リポジトリ | 決定論的整合の検出点（コミット前検査とdoc-reality検査） |
-| `AGENTS.md` | リポジトリルート | `CLAUDE.md` へのシンボリックリンク（AGENTS.mdを読む他ツールへの可搬性。実体は増やさない） |
+| `AGENTS.md` | リポジトリルート | `CLAUDE.md` へのシンボリックリンク（Codex等、AGENTS.mdを読むエージェントへの可搬性。実体は増やさない） |
 
 CLAUDE.md の末尾には生成時のDRAFT版数を記録する。方法論は生成後も進化するため、guide がこのスタンプと現行版の差から、再生成や検出点の追加（バックフィル）を提案できるようにする。
 
@@ -571,7 +571,7 @@ idea -> brainstorm -> features/YYYYMMDD-HHMM_{name}.md -> impl prompt -> impleme
 | `templates/p-2/design-spec.md` | 2 | 設計仕様書 |
 | `templates/p-2/screen_flow.mermaid` | 2 | 画面遷移図 |
 | `templates/p-3/project-playbook`(PROJECT-PLAYBOOK テンプレート一式) | 3 | 開発ドキュメント |
-| `templates/p-4/CLAUDE.template.md` | 4 | Claude Code コンテキスト |
+| `templates/p-4/CLAUDE.template.md` | 4 | AIエージェント用コンテキスト |
 | `templates/p-4/claude-code-prompts.md` | 4 | ステップ別プロンプト集 |
 | `templates/p-4/doc-lint.sh` | 4 | 決定論的整合の検出スクリプト（コミット前検査とdoc-reality検査） |
 | PROJECT-PLAYBOOK `02-02` | イテレーション | Feature Design Doc |

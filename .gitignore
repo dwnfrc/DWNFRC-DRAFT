@@ -24,3 +24,7 @@ venv/
 .env
 .env.local
 .env.*.local
+
+# Agent Skills
+# このリポジトリで自分用に導入した配布物(正は dist/agents/skills/、生成物の evolve は追跡する)
+.agents/skills/draft-*

@@ -27,8 +27,10 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 | `draft-plugin/skills/*/SKILL.md` | 派生 | 方法論の**実装**(READMEに追随する。1スキル=1ディレクトリ。一覧は `draft-plugin/README.md` のスキル表) |
 | `draft-plugin/skills/*/` 内のテンプレート | 派生 | `templates/` 配下の**原本のコピー**(スキル実行時に参照される配布物) |
 | `templates/` | ソース | テンプレート原本 |
-| `dist/cursor/skills/` | 派生 | Cursor用スキル一式。`scripts/build-cursor-skills.rb` が `draft-plugin/skills/` から生成(名前空間 `/draft:` → `/draft-`)。**手で編集しない** — 正を直して再生成する |
-| `scripts/build-cursor-skills.rb` | — | Cursor派生の生成器(`--check` で乖離検証。validate.rbが呼ぶ) |
+| `dist/agents/skills/` | 派生 | Agent Skills対応クライアント(Codex・Cursor等)向けのスキル一式。`scripts/build-agent-skills.rb` が `draft-plugin/skills/` から生成(名前空間 `/draft:` → `draft-`)。**手で編集しない** — 正を直して再生成する |
+| `scripts/build-agent-skills.rb` | — | Agent Skills派生の生成器(`--check` で乖離検証。validate.rbが呼ぶ) |
+| `scripts/install-agent-skills.rb` | — | 派生をクライアントの探索先(`~/.agents/skills/` 等)へ導入するインストーラ |
+| `.agents/skills/` | 派生 | このリポジトリ用スキル(evolve)を Claude Code 以外(Codex等)からも起動するための複製。`scripts/build-agent-skills.rb` が `.claude/skills/` から生成。**手で編集しない** — 正(`.claude/skills/`)を直して再生成する |
 | `manual-flow.md` | アーカイブ | 手動フロー(初期実装)の手順集。**更新しない** — ここを直したくなったら、それはspec(README)かプラグインの課題 |
 | `draft-plugin/.claude-plugin/plugin.json` | — | プラグインマニフェスト(バージョン管理) |
 | `.claude-plugin/marketplace.json` | — | マーケットプレイス定義 |
@@ -38,7 +40,7 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 
 ### 1. 雑なヒアリング
 
-ユーザーの最初の一言は雑でよい。以下を軽く聞いて課題の輪郭を掴む(選択式・1テーマずつ。AskUserQuestion推奨。2〜3往復で十分、全部聞く必要はない):
+ユーザーの最初の一言は雑でよい。以下を軽く聞いて課題の輪郭を掴む(選択式・1テーマずつ。選択肢を提示できるツールがあれば使う — Claude Code なら AskUserQuestion、無ければ番号付きの選択肢を書く。2〜3往復で十分、全部聞く必要はない):
 
 - いつ・どのスキル(フェーズ)を使っていて感じたか
 - 「困りごとの解消」か「新しく欲しいもの」か
@@ -55,8 +57,8 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 | スキルの実行の仕方だけ(対話手順・ツール使用・エラー処理) | 該当する `SKILL.md` のみ。READMEには波及しない |
 | 方法論そのもの(フェーズ定義・原則・成果物) | `README.md`(ソース)を**先に**直し、該当 `SKILL.md` を実装として追随させる。追随までが1サイクル |
 | テンプレートの内容 | `templates/` の原本を直し、`skills/` 内コピーへ反映する(コピーは配布用の派生) |
-| 新スキルの追加 | `skills/` に新ディレクトリ + `guide`(診断表・案内先) + `draft-plugin/README.md` の表 + 必要なら `README.md`。追加後に Cursor派生を再生成する |
-| 配布・構成 | `plugin.json` / `marketplace.json`。Cursor配布は `scripts/build-cursor-skills.rb` と `dist/cursor/skills/` |
+| 新スキルの追加 | `skills/` に新ディレクトリ + `guide`(診断表・案内先) + `draft-plugin/README.md` の表 + 必要なら `README.md`。追加後に Agent Skills派生を再生成する |
+| 配布・構成 | `plugin.json` / `marketplace.json`。Claude Code以外(Codex・Cursor等)への配布は `scripts/build-agent-skills.rb`・`scripts/install-agent-skills.rb` と `dist/agents/skills/` |
 
 ### 3. 方針の壁打ち
 
@@ -75,7 +77,7 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 - 成果物パスの受け渡し(あるスキルの出力ファイル名=次のスキルの入力)を壊さない
 - 方法論に関わる変更はREADME(ソース)を先に直し、スキル・テンプレコピーを追随させる(影響範囲マップの方向に従う)
 - テンプレート変更は原本(`templates/`)を直し、コピー(`skills/` 内)へ反映する
-- `skills/` を変更したら Cursor派生を再生成する: `ruby scripts/build-cursor-skills.rb`(正は `skills/`、`dist/cursor/skills/` は派生。手で編集しない)
+- `draft-plugin/skills/` か `.claude/skills/`(このスキル自身を含む)を変更したら Agent Skills派生を再生成する: `ruby scripts/build-agent-skills.rb`(生成先は `dist/agents/skills/` と `.agents/skills/`。どちらも派生 — 手で編集しない)
 - `plugin.json` のversionを上げる: 文言修正・バグ修正=patch、スキルの追加・挙動変更=minor
 - スキルの追加・削除・改名をしたら、`guide` の診断表・案内先一覧と `draft-plugin/README.md` のスキル表も更新する
 
@@ -94,7 +96,7 @@ ruby .claude/skills/evolve/validate.rb
 ### 6. 反映と報告
 
 1. 変更の要約を報告する(何をなぜ変えたか、versionをいくつに上げたか)
-2. プラグインをインストール済みの場合の反映手順を案内する: `/plugin marketplace update draft-marketplace` → `/reload-plugins`(または再起動)
+2. 反映手順を案内する。Claude Code(プラグイン導入済み): `/plugin marketplace update draft-marketplace` → `/reload-plugins`(または再起動)。Codex・Cursor等: `ruby scripts/install-agent-skills.rb` で入れ直す(`--link` で導入済みなら不要)
 3. 変更したスキルの動作確認方法を提案する(例: 該当スキルを実際に呼んでみる)
 4. コミットはユーザーが希望した場合のみ行う
 
