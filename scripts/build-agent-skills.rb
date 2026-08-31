@@ -9,6 +9,7 @@
 #        (b) プラグイン名前空間 /draft:xxx はプラグイン外に無いので draft-xxx に変換する
 #        (呼び出し記号はクライアントごとに違う — Codex は $draft-xxx、Cursor は /draft-xxx。
 #         どちらでも読める素の名前で書き、記号の案内は draft-plugin/README.md が持つ)
+#        例外: `claude -p '/draft:xxx'` の引数は変換しない(子プロセスは Claude Code 本体)
 #
 #   2. .claude/skills/ → .agents/skills/           … このリポジトリ用の改善スキル(evolve)を
 #        Claude Code 以外のクライアントからも起動できるようにする。こちらは名前空間を変換しない
@@ -42,11 +43,23 @@ TARGETS = [
 # 名前空間を書き換える対象の拡張子(同梱テンプレートにも /draft:xxx 参照が現れる)
 TEXT_EXT = %w[.md .mermaid .sh .json .txt].freeze
 
+# `claude -p '/draft:xxx'` の引数は変換しない。子プロセスは Claude Code 本体であり、
+# そこではプラグイン名前空間が生きている(フラット名に変えると解決しなくなる)。
+# 無人ループの駆動スクリプトがこの形で自分自身を起動する。
+CLAUDE_CLI_ARG = /claude\s+-p\s+(?:'[^']*'|"[^"]*")/
+GUARD = "\u0000GUARD%d\u0000"
+
 # プラグイン名前空間をフラット名に変換する:
 #   /draft:concept → draft-concept
 #   /draft:(スキル名を伴わない総称) → draft-*
 def flatten_namespace(text)
-  text.gsub(%r{/draft:([a-z][a-z-]*)}, "#{PREFIX}\\1").gsub('/draft:', "#{PREFIX}*")
+  guarded = []
+  masked  = text.gsub(CLAUDE_CLI_ARG) do |hit|
+    guarded << hit
+    format(GUARD, guarded.size - 1)
+  end
+  flat = masked.gsub(%r{/draft:([a-z][a-z-]*)}, "#{PREFIX}\\1").gsub('/draft:', "#{PREFIX}*")
+  flat.gsub(/\u0000GUARD(\d+)\u0000/) { guarded[Regexp.last_match(1).to_i] }
 end
 
 # SKILL.md を Agent Skills 用に書き換える:
