@@ -14,6 +14,7 @@
 #   DRAFT_LOOP_MAX_ITER         反復の上限 (既定: 30)
 #   DRAFT_LOOP_PERMISSION_MODE  claude --permission-mode に渡す値 (既定: acceptEdits)
 #   DRAFT_LOOP_SKIP_PREFLIGHT   1 で走行前の独立レビュー確認を飛ばす
+#   DRAFT_LOOP_RAW              1 で進捗の整形をやめ、claude の生出力をそのまま流す
 #
 # 権限について: 無人実行なので、実装に必要なツールが問い合わせ無しで通る状態が要る。
 # 既定の acceptEdits はファイル編集しか通さないため、多くのプロジェクトでは
@@ -55,6 +56,12 @@ steps() {
 first_pending()  { steps | awk -F'\t' '$2 == "" { print $1; exit }'; }
 first_blocked()  { steps | awk -F'\t' '$2 ~ /^blocked/ { print $1; exit }'; }
 
+# 指定した見出しの Status 値を返す(1反復の結果を読むため)
+status_of() { steps | awk -F'\t' -v h="$1" '$1 == h { print $2; exit }'; }
+
+# 経過時間を mm:ss で
+elapsed() { printf '%d:%02d' $(( SECONDS / 60 )) $(( SECONDS % 60 )); }
+
 # 走行中に積まれたコミットを全文で出す。自律判断の記録はここにある。
 audit() {
   [ -n "$START_REF" ] || return 0
@@ -65,6 +72,56 @@ audit() {
   fi
   log "この走行で積まれたコミット（自律判断の記録はこの本文にあります。必ず読んでください）:"
   git --no-pager log --stat "${START_REF}..HEAD"
+}
+
+# claude の stream-json を、人が読める進捗行に変える。
+# 既定の text 出力はステップが終わるまで何も出さないため、実装中は画面が止まって見える。
+# stream-json はツール実行のたびにイベントが届くので、経過時間と「今なにをしているか」を出せる。
+format_progress() {
+  python3 -u -c '
+import sys, json, os, time
+start = time.time()
+cwd = os.getcwd() + "/"
+def el():
+    s = int(time.time() - start)
+    return "%d:%02d" % (s // 60, s % 60)
+def one(text, limit=78):
+    return " ".join(str(text).split())[:limit]
+for line in sys.stdin:
+    line = line.strip()
+    if not line:
+        continue
+    try:
+        ev = json.loads(line)
+    except ValueError:
+        continue
+    if ev.get("type") != "assistant":
+        continue
+    for c in ev.get("message", {}).get("content", []):
+        kind = c.get("type")
+        if kind == "tool_use":
+            inp = c.get("input") or {}
+            detail = (inp.get("command") or inp.get("file_path") or inp.get("description")
+                      or inp.get("pattern") or inp.get("prompt") or "")
+            if isinstance(detail, str) and detail.startswith(cwd):
+                detail = detail[len(cwd):]
+            print("    %6s  %-9s %s" % (el(), c.get("name", "?"), one(detail)))
+        elif kind == "text":
+            t = one(c.get("text", ""))
+            if t:
+                print("    %6s  %s" % (el(), t))
+'
+}
+
+# 1ステップを新しいセッションで実行する。claude の終了コードを返す。
+run_step() {
+  if [ "${DRAFT_LOOP_RAW:-0}" = "1" ] || ! command -v python3 >/dev/null 2>&1; then
+    claude -p '/draft:implement loop' --permission-mode "$PERMISSION_MODE" < /dev/null
+    return $?
+  fi
+  claude -p '/draft:implement loop' --permission-mode "$PERMISSION_MODE" \
+      --output-format stream-json --verbose < /dev/null | format_progress
+  return "${PIPESTATUS[0]}"
 }
 
 # 独立レビューは各ステップで必ず使う。起動できないまま走ると、1ステップを作り切ってから
@@ -79,7 +136,7 @@ preflight_review() {
   local prompt probe
   prompt='Agentツールでサブエージェントを1体だけ起動し、Bashで `git status --short` を実行させてください。'
   prompt+='起動して実行できたら READY の1語だけを、できなければ UNAVAILABLE の1語だけを出力してください。他には何も出力しないこと。'
-  probe="$(claude -p "$prompt" --permission-mode "$PERMISSION_MODE" 2>&1)"
+  probe="$(claude -p "$prompt" --permission-mode "$PERMISSION_MODE" < /dev/null 2>&1)"
 
   case "$probe" in
     *READY*)
@@ -117,7 +174,7 @@ repeat=0
 for (( iter = 1; iter <= MAX_ITER; iter++ )); do
   blocked="$(first_blocked)"
   if [ -n "$blocked" ]; then
-    log "blocked で停止: ${blocked}"
+    log "保留で停止: ${blocked#\#\# }"
     log "理由は $PROMPTS の該当 Status: 行の直後にあります。人の判断を入れてから再実行してください。"
     exit 2
   fi
@@ -128,6 +185,8 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
     exit 0
   fi
 
+  label="${target#\#\# }"
+
   if [ "$target" = "$prev_target" ]; then
     repeat=$(( repeat + 1 ))
   else
@@ -136,18 +195,27 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
   fi
 
   if [ "$repeat" -ge 3 ]; then
-    log "停止: ${target} が2回続けて Status を更新せずに終わりました。"
+    log "停止: ${label} が2回続けて Status を更新せずに終わりました。"
     log "セッションのクラッシュかコンテキスト切れの可能性があります。手動で状況を確認してください。"
     exit 3
   fi
 
   if [ "$repeat" -eq 1 ]; then
-    log "反復 ${iter}/${MAX_ITER}: ${target}"
+    log "反復 ${iter}/${MAX_ITER}: ${label}"
   else
-    log "反復 ${iter}/${MAX_ITER}: ${target} （再試行 $(( repeat - 1 ))回目）"
+    log "反復 ${iter}/${MAX_ITER}: ${label} （再試行 $(( repeat - 1 ))回目）"
   fi
 
-  claude -p '/draft:implement loop' --permission-mode "$PERMISSION_MODE"
+  SECONDS=0
+  run_step
+  rc=$?
+
+  after="$(status_of "$target")"
+  case "$after" in
+    done*)    log "完了: ${label} ($(elapsed))" ;;
+    blocked*) log "保留: ${label} ($(elapsed)) — 次の判定で停止します" ;;
+    *)        log "未記録のまま終了: ${label} ($(elapsed), claude終了コード ${rc})" ;;
+  esac
 done
 
 log "反復の上限 (${MAX_ITER}) に到達しました。残りを確認してから再実行してください。"
