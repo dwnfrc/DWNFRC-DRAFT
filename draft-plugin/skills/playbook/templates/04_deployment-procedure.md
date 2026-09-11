@@ -29,22 +29,22 @@
 
 ### CI/CD ワークフロー
 
-**ci.yml** — 全PR:
+**ci.yml**: 全PR:
 ```
 lint → unit test → build check
 ```
 
-**build.yml** — mainマージ時:
+**build.yml**: mainマージ時:
 ```
 test → コンテナビルド → レジストリpush（バージョンタグ + gitタグ付与） → deploy/staging/version を自動更新
 ```
 
-**deploy.yml** — deploy/{環境}/version 変更時:
+**deploy.yml**: deploy/{環境}/version 変更時:
 ```
 宣言されたバージョンのイメージを対象環境へデプロイ → DB migrate → デプロイ後確認
 ```
 
-**infra.yml** — infra/ 配下に変更がある場合:
+**infra.yml**: infra/ 配下に変更がある場合:
 ```
 PR時: IaC plan → PRにコメント
 main merge時: IaC apply

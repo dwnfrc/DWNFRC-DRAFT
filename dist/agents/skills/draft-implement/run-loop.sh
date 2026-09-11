@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# DRAFT Phase 5 — 無人ループ駆動スクリプト
+# DRAFT Phase 5: 無人ループ駆動スクリプト
 #
 # docs/claude-code-prompts.md の未着手ステップを、1ステップにつき1セッションで
 # 消化しきる。各反復は `claude -p '/draft:implement loop'` を新しいセッションとして
@@ -351,7 +351,7 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
 
   case "$after" in
     done*)    log "完了: ${label} ($(elapsed))" ;;
-    blocked*) log "保留: ${label} ($(elapsed)) — 次の判定で停止します" ;;
+    blocked*) log "保留: ${label} ($(elapsed))。次の判定で停止します" ;;
     *)        log "未記録のまま終了: ${label} ($(elapsed), claude終了コード ${rc})" ;;
   esac
 done

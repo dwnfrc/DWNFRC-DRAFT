@@ -14,12 +14,12 @@
 
 | 形 | 構成 | 適している場合 |
 |----|------|---------------|
-| **フルスタックFW一体型** | Next.js / Nuxt / SvelteKit / Remix にUIとAPIを同居 | 小〜中規模Web、1人開発、SEOが要る、開発速度優先 |
-| **SPA + 独立API** | React/Vue + 別プロセスのバックエンド | API を複数クライアント（Web+モバイル+外部）で共有、バックエンドの言語を分けたい |
-| **BaaS + フロント** | Supabase/Firebase + SPA・モバイル | 認証+CRUD+リアルタイムが中心、バックエンドコードを最小化したい |
-| **モバイル + API** | ネイティブ/React Native/Flutter + API or BaaS | モバイルが主戦場 |
-| **API only** | ヘッドレスAPI、外部連携、バッチ | UIを持たない、他システムから呼ばれる |
-| **CLI・デスクトップ** | 配布物。ホスティング不要 | ローカルツール（クラウド選定はほぼ不要） |
+| フルスタックFW一体型 | Next.js / Nuxt / SvelteKit / Remix にUIとAPIを同居 | 小〜中規模Web、1人開発、SEOが要る、開発速度優先 |
+| SPA + 独立API | React/Vue + 別プロセスのバックエンド | API を複数クライアント（Web+モバイル+外部）で共有、バックエンドの言語を分けたい |
+| BaaS + フロント | Supabase/Firebase + SPA・モバイル | 認証+CRUD+リアルタイムが中心、バックエンドコードを最小化したい |
+| モバイル + API | ネイティブ/React Native/Flutter + API or BaaS | モバイルが主戦場 |
+| API only | ヘッドレスAPI、外部連携、バッチ | UIを持たない、他システムから呼ばれる |
+| CLI・デスクトップ | 配布物。ホスティング不要 | ローカルツール（クラウド選定はほぼ不要） |
 
 **推奨**: 1人開発のWebサービスはフルスタックFW一体型（構成要素が最少）。API を複数クライアントで共有する見込みが具体的にあるときだけ SPA + 独立API に分ける。
 
@@ -29,17 +29,17 @@ RESTだけが選択肢ではない。クライアント・サーバー間と、�
 
 | 方式 | 特徴 | 適している場合 | 注意 |
 |------|------|---------------|------|
-| **REST** | デファクト、ツール・知見が最多 | 公開API、迷ったらこれ | OpenAPIでスキーマを書くと型生成・ドキュメントが揃う |
-| **tRPC** | TypeScript前提、クライアント・サーバー間で型を直接共有 | TSモノレポ、フルスタックFW一体型 | 公開API・多言語クライアントには不向き |
-| **GraphQL** | クライアント主導のデータ取得、1エンドポイント | 画面ごとに必要データが大きく違う、複数クライアント | サーバー実装・キャッシュ・N+1対策のコストが高い。小規模では過剰 |
-| **gRPC** | バイナリ、高速、双方向ストリーミング、多言語 | サービス間通信、マイクロサービス | ブラウザから直接呼べない（grpc-web/Connectが要る）。個人開発の外向きAPIには過剰 |
-| **WebSocket** | 双方向・常時接続 | チャット、共同編集、対戦、ライブ更新 | 常駐プロセスが要る。FaaSと相性が悪い（プロバイダ別ファイル参照） |
-| **SSE** | サーバー→クライアントの一方向ストリーム | 通知、進捗表示、AI応答のストリーミング | HTTPだけで済む。双方向が不要ならWebSocketよりこちら |
-| **Webhook** | 外部サービスからのイベント受信（HTTP POST） | 決済・外部SaaS連携 | 受け口は冪等に作る。署名検証を必ず入れる |
-| **非同期メッセージング** | キュー/Pub-Sub経由、応答を待たない | ジョブ投入、サービス間のイベント連携 | 軸5（非同期処理）とセットで検討 |
+| REST | デファクト、ツール・知見が最多 | 公開API、迷ったらこれ | OpenAPIでスキーマを書くと型生成・ドキュメントが揃う |
+| tRPC | TypeScript前提、クライアント・サーバー間で型を直接共有 | TSモノレポ、フルスタックFW一体型 | 公開API・多言語クライアントには不向き |
+| GraphQL | クライアント主導のデータ取得、1エンドポイント | 画面ごとに必要データが大きく違う、複数クライアント | サーバー実装・キャッシュ・N+1対策のコストが高い。小規模では過剰 |
+| gRPC | バイナリ、高速、双方向ストリーミング、多言語 | サービス間通信、マイクロサービス | ブラウザから直接呼べない（grpc-web/Connectが要る）。個人開発の外向きAPIには過剰 |
+| WebSocket | 双方向・常時接続 | チャット、共同編集、対戦、ライブ更新 | 常駐プロセスが要る。FaaSと相性が悪い（プロバイダ別ファイル参照） |
+| SSE | サーバー→クライアントの一方向ストリーム | 通知、進捗表示、AI応答のストリーミング | HTTPだけで済む。双方向が不要ならWebSocketよりこちら |
+| Webhook | 外部サービスからのイベント受信（HTTP POST） | 決済・外部SaaS連携 | 受け口は冪等に作る。署名検証を必ず入れる |
+| 非同期メッセージング | キュー/Pub-Sub経由、応答を待たない | ジョブ投入、サービス間のイベント連携 | 軸5（非同期処理）とセットで検討 |
 
 **推奨**:
-- 基本は **REST（またはTSモノレポならtRPC）を土台に、リアルタイムが要る箇所だけWebSocket/SSEを足す**。全面SocketやGraphQL全面採用は運用コストに見合わないことが多い
+- 基本は、REST（またはTSモノレポならtRPC）を土台に、リアルタイムが要る箇所だけWebSocket/SSEを足す。全面SocketやGraphQL全面採用は運用コストに見合わないことが多い
 - サーバー→クライアントの一方向で足りるなら SSE、双方向が要るときだけ WebSocket
 - リアルタイム要件がDB変更の購読程度なら、自前WebSocketよりBaaSのRealtime機能（`tech-stacks-supabase.md`）が安い
 
@@ -49,11 +49,11 @@ RESTだけが選択肢ではない。クライアント・サーバー間と、�
 
 | モデル | 例 | 特徴 | 常時接続(WS等) |
 |--------|----|------|---------------|
-| **コンテナ常駐** | Cloud Run、ECS、Fly.io | 言語自由、ローカルと同じものが動く、長時間処理可 | ◎ |
-| **FaaS** | Lambda、Cloud Functions | リクエスト単位課金、アイドル0円、実行時間上限あり | △（別サービスの助けが要る） |
-| **FWマネージド** | Vercel、Netlify | フレームワークを置くだけ。実体はFaaS+エッジ+CDN | ✕（外部サービス併用） |
-| **エッジ** | Cloudflare Workers | 世界中で低レイテンシ、起動高速、CPU時間制限あり | ○（Durable Objects併用） |
-| **VM** | EC2、Compute Engine | フル制御 | ◎（ただし運用負担最大） |
+| コンテナ常駐 | Cloud Run、ECS、Fly.io | 言語自由、ローカルと同じものが動く、長時間処理可 | ◎ |
+| FaaS | Lambda、Cloud Functions | リクエスト単位課金、アイドル0円、実行時間上限あり | △（別サービスの助けが要る） |
+| FWマネージド | Vercel、Netlify | フレームワークを置くだけ。実体はFaaS+エッジ+CDN | ✕（外部サービス併用） |
+| エッジ | Cloudflare Workers | 世界中で低レイテンシ、起動高速、CPU時間制限あり | ○（Durable Objects併用） |
+| VM | EC2、Compute Engine | フル制御 | ◎（ただし運用負担最大） |
 
 **推奨**: フルスタックFW一体型ならFWマネージド、独立APIならコンテナ常駐が基本線。FaaSは「イベント処理・ジョブの受け皿」として併用する位置づけで考える。
 
@@ -61,13 +61,13 @@ RESTだけが選択肢ではない。クライアント・サーバー間と、�
 
 | 種類 | 選択肢 | 適している場合 |
 |------|--------|---------------|
-| **RDB** | PostgreSQL（標準）、MySQL | 迷ったらPostgreSQL。リレーションと整合性が要る大半のアプリ |
-| **サーバーレスRDB** | Neon、PlanetScale、Cloudflare D1 | 接続数課金を避けたい、FaaS/エッジから使う、スケールto0でコスト最小化 |
-| **ドキュメントDB** | Firestore、DynamoDB、MongoDB | スキーマ可変、リアルタイム同期（Firestore）、超大規模KV（DynamoDB） |
-| **KV・キャッシュ** | Redis（マネージド各種、Upstash）、Workers KV | セッション、キャッシュ、レートリミット |
-| **オブジェクトストレージ** | S3、Cloud Storage、R2 | ファイル・画像・動画。R2はエグレス無料 |
-| **全文検索** | PostgreSQL全文検索、Meilisearch、Algolia | まずはPostgreSQLの機能で足りるか確認してから専用品 |
-| **ベクトル** | pgvector、Pinecone | AI機能（類似検索・RAG）。まずはpgvector |
+| RDB | PostgreSQL（標準）、MySQL | 迷ったらPostgreSQL。リレーションと整合性が要る大半のアプリ |
+| サーバーレスRDB | Neon、PlanetScale、Cloudflare D1 | 接続数課金を避けたい、FaaS/エッジから使う、スケールto0でコスト最小化 |
+| ドキュメントDB | Firestore、DynamoDB、MongoDB | スキーマ可変、リアルタイム同期（Firestore）、超大規模KV（DynamoDB） |
+| KV・キャッシュ | Redis（マネージド各種、Upstash）、Workers KV | セッション、キャッシュ、レートリミット |
+| オブジェクトストレージ | S3、Cloud Storage、R2 | ファイル・画像・動画。R2はエグレス無料 |
+| 全文検索 | PostgreSQL全文検索、Meilisearch、Algolia | まずはPostgreSQLの機能で足りるか確認してから専用品 |
+| ベクトル | pgvector、Pinecone | AI機能（類似検索・RAG）。まずはpgvector |
 
 **推奨**: PostgreSQL を正とし、キャッシュ・検索・ベクトルは「まずPostgreSQL内の機能（Redis無しで済むか、全文検索、pgvector）で始めて、足りなくなったら専用サービスに切り出す」。データストアの種類を増やすほど運用が重くなる。
 
@@ -75,9 +75,9 @@ RESTだけが選択肢ではない。クライアント・サーバー間と、�
 
 | 要件 | 実現手段の枠 | 例 |
 |------|-------------|----|
-| **ジョブキュー**（重い処理をリクエストから切り離す） | マネージドキュー+ワーカー / Redisベース | SQS+ワーカー、Cloud Tasks、BullMQ、pg-boss（PostgreSQLだけで済む） |
-| **イベント駆動**（サービス間をイベントで繋ぐ） | Pub/Sub | SNS/EventBridge、Cloud Pub/Sub、Cloudflare Queues |
-| **定期実行** | マネージドcron | EventBridge Scheduler、Cloud Scheduler、Vercel Cron、pg_cron |
+| ジョブキュー（重い処理をリクエストから切り離す） | マネージドキュー+ワーカー / Redisベース | SQS+ワーカー、Cloud Tasks、BullMQ、pg-boss（PostgreSQLだけで済む） |
+| イベント駆動（サービス間をイベントで繋ぐ） | Pub/Sub | SNS/EventBridge、Cloud Pub/Sub、Cloudflare Queues |
+| 定期実行 | マネージドcron | EventBridge Scheduler、Cloud Scheduler、Vercel Cron、pg_cron |
 
 **推奨**: 個人開発規模なら pg-boss / BullMQ のようなDB・Redis相乗り型で始めるのが最安。プロバイダのマネージドキューは「ワーカーのスケールを分けたくなってから」でよい。
 
@@ -85,10 +85,10 @@ RESTだけが選択肢ではない。クライアント・サーバー間と、�
 
 | 枠 | 例 | 適している場合 |
 |----|----|---------------|
-| **BaaS付属** | Supabase Auth、Firebase Auth | BaaS採用時は迷わずこれ（DB・RLSと統合済み） |
-| **IDaaS** | Clerk、Auth0、Cognito、Identity Platform | UIコンポーネント込みで速い（Clerk）、エンタープライズSSO（Auth0） |
-| **FWライブラリ** | Auth.js、Better Auth | フルスタックFW内で完結、外部依存を増やしたくない、コスト0 |
-| **自前JWT** | — | 特殊要件・学習目的のみ。基本選ばない |
+| BaaS付属 | Supabase Auth、Firebase Auth | BaaS採用時は迷わずこれ（DB・RLSと統合済み） |
+| IDaaS | Clerk、Auth0、Cognito、Identity Platform | UIコンポーネント込みで速い（Clerk）、エンタープライズSSO（Auth0） |
+| FWライブラリ | Auth.js、Better Auth | フルスタックFW内で完結、外部依存を増やしたくない、コスト0 |
+| 自前JWT | — | 特殊要件・学習目的のみ。基本選ばない |
 
 ## 共通アプリ基盤（プロバイダ非依存）
 
@@ -97,12 +97,12 @@ RESTだけが選択肢ではない。クライアント・サーバー間と、�
 ### 言語・Webフレームワーク
 | 言語 | フレームワーク | 特徴 | 適している場合 |
 |------|--------------|------|---------------|
-| **TypeScript** | Next.js等（一体型） | UIとAPIが同居 | フルスタックFW一体型を選んだ場合 |
-| **TypeScript** | Hono | 超軽量、エッジ・コンテナ・FaaSどこでも動く | 独立API、エッジ、まず迷ったらこれ |
-| **TypeScript** | NestJS | 構造が強い、エンタープライズ向け | 大規模、チーム開発、DI が欲しい |
-| **Python** | FastAPI | 高速、型ヒント、自動ドキュメント | API中心、ML・AI連携 |
-| **Python** | Django | フルスタック、管理画面標準 | 管理画面重視、短納期 |
-| **Go** | Echo / Gin | 高速、シングルバイナリ | パフォーマンス重視、gRPCサービス |
+| TypeScript | Next.js等（一体型） | UIとAPIが同居 | フルスタックFW一体型を選んだ場合 |
+| TypeScript | Hono | 超軽量、エッジ・コンテナ・FaaSどこでも動く | 独立API、エッジ、まず迷ったらこれ |
+| TypeScript | NestJS | 構造が強い、エンタープライズ向け | 大規模、チーム開発、DI が欲しい |
+| Python | FastAPI | 高速、型ヒント、自動ドキュメント | API中心、ML・AI連携 |
+| Python | Django | フルスタック、管理画面標準 | 管理画面重視、短納期 |
+| Go | Echo / Gin | 高速、シングルバイナリ | パフォーマンス重視、gRPCサービス |
 
 **推奨**: TypeScript統一（一体型ならNext.js等、独立APIならHono）。ML連携があるならPython + FastAPI。
 
@@ -124,10 +124,10 @@ RESTだけが選択肢ではない。クライアント・サーバー間と、�
 ### IaC
 | 選択肢 | 特徴 | 適している場合 |
 |--------|------|---------------|
-| **Terraform** | マルチクラウド対応、デファクト | AWS/GCPを本格利用 |
-| **Pulumi** | 開発言語でインフラ記述 | TypeScript等で統一したい |
-| **プロバイダ固有** | CDK（AWS）、wrangler.toml（Cloudflare）、fly.toml（Fly.io） | そのプロバイダ一本 |
-| **なし** | コンソール+設定ファイルのみ | Vercel/Supabase等のPaaS・BaaS中心構成では十分 |
+| Terraform | マルチクラウド対応、デファクト | AWS/GCPを本格利用 |
+| Pulumi | 開発言語でインフラ記述 | TypeScript等で統一したい |
+| プロバイダ固有 | CDK（AWS）、wrangler.toml（Cloudflare）、fly.toml（Fly.io） | そのプロバイダ一本 |
+| なし | コンソール+設定ファイルのみ | Vercel/Supabase等のPaaS・BaaS中心構成では十分 |
 
 **推奨**: PaaS・BaaS中心構成ならIaC無しで開始してよい（設定ファイルがリポジトリに残る構成を選ぶ）。AWS/GCPを本格利用するならTerraform。
 
@@ -165,7 +165,7 @@ RESTだけが選択肢ではない。クライアント・サーバー間と、�
 
 ## 次のステップ
 
-1. 軸1〜2（アプリの形・通信方式)を決める — ここが後続すべての前提
+1. 軸1〜2（アプリの形・通信方式)を決める: ここが後続すべての前提
 2. 軸3〜6の要件を洗い、選定マトリクスでプロバイダ候補を2つに絞る
 3. 該当するプロバイダ別ファイルだけを読み、比較して確定する
 4. 決定と根拠(捨てた候補とのトレードオフ)を System Design Doc の ADR に記録する

@@ -8,9 +8,9 @@ BaaS（Backend as a Service）枠。**認証 + DB + ストレージ + リアル�
 
 | サービス | 中身 | 選ぶ場合 |
 |---------|------|---------|
-| **Supabase** | **素のPostgreSQL** + Auth + Realtime + Storage | SQL・リレーションで設計したい（大半のケース）。卒業しても普通のPostgresとして持ち出せる |
-| **Firebase** | Firestore（NoSQL）+ Auth + FCM + Hosting | モバイル中心、プッシュ通知（FCM）必須、オフライン同期が要る |
-| **PocketBase** | SQLite一体の単一バイナリ（セルフホスト） | 超小規模・自分用ツール。VPS1台やFly.ioに置くだけ |
+| Supabase | **素のPostgreSQL** + Auth + Realtime + Storage | SQL・リレーションで設計したい（大半のケース）。卒業しても普通のPostgresとして持ち出せる |
+| Firebase | Firestore（NoSQL）+ Auth + FCM + Hosting | モバイル中心、プッシュ通知（FCM）必須、オフライン同期が要る |
+| PocketBase | SQLite一体の単一バイナリ（セルフホスト） | 超小規模・自分用ツール。VPS1台やFly.ioに置くだけ |
 
 以下はSupabaseを主に書く。
 

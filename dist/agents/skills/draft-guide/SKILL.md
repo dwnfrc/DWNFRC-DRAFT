@@ -12,8 +12,8 @@ DRAFTフレームワークの全体像をユーザーに説明し、現在のプ
 DRAFT = Document-driven, Reproducible, AI-powered, Full-stack Toolkit。
 段階的にドキュメントを練り上げてから実装する開発フレームワークで、名前には2つの意味がある:
 
-- **設計の下書き(Draft)** — いきなりコードを書かず、コンセプトから設計書を段階的に練り上げ、確かな設計図ができてから実装に入る
-- **レースのドラフティング(Drafting)** — AIという先行者の力を借りて開発を加速する
+- **設計の下書き(Draft)**: いきなりコードを書かず、コンセプトから設計書を段階的に練り上げ、確かな設計図ができてから実装に入る
+- **レースのドラフティング(Drafting)**: AIという先行者の力を借りて開発を加速する
 
 ## 前提(入力)
 
@@ -33,18 +33,18 @@ Phase 0     Phase 1     Phase 2      Phase 3          Phase 4     Phase 5
 
 Phase 5完了後 → イテレーション(変更サイクル):
   FDD要否判定 → 壁打ち → Feature Design Doc → 実装プロンプト生成 → 実装 → ソースDoc更新 → 繰り返し
-  (振る舞い(仕様)が変わらない変更 — リファクタ・依存更新・chore・仕様に実装を合わせるだけのバグ修正 — はFDD不要。直接実装してコミット)
+  (振る舞い(仕様)が変わらない変更はFDD不要。リファクタ・依存更新・chore・仕様に実装を合わせるだけのバグ修正が該当し、直接実装してコミット)
 ```
 
 **大原則: 後工程に渡すのは常にファイル。口頭の合意ではなくMarkdownに書き出す。**
-**大原則: ドキュメントがソース、実装は成果物。実装は常にソース層のドキュメントから再現できる状態を保つ。**(再現とは同じコードの再生成ではなく、同じ仕様・能力を持つプロダクトを再構築できること)
+**大原則: ドキュメントがソース、実装は成果物。** 実装は常にソース層のドキュメントから再現できる状態を保つ(再現とは同じコードの再生成ではなく、同じ仕様・能力を持つプロダクトを再構築できること)
 **各Phaseの成果物は次のPhaseの入力になる。飛ばすと品質が落ちる。**
 
 ドキュメントは3層で管理する(詳細はREADME原典の「ドキュメント体系」):
 
-- **ソース**(design-spec、PRD、System Design Doc、dev-setup等) — 実装を再現するための正。常に現在の状態を反映する
-- **派生**(CLAUDE.md、claude-code-prompts.md、docs/README.md) — ソースから再生成可能
-- **アーカイブ**(concept.md、brainstorm-notes.md、FDD) — 経緯の記録。書き換えず蓄積する(FDDは対象サイクルの実装完了時に確定してこの層に入る)
+- **ソース**(design-spec、PRD、System Design Doc、dev-setup等): 実装を再現するための正。常に現在の状態を反映する
+- **派生**(CLAUDE.md、claude-code-prompts.md、docs/README.md): ソースから再生成可能
+- **アーカイブ**(concept.md、brainstorm-notes.md、FDD): 経緯の記録。書き換えず蓄積する(FDDは対象サイクルの実装完了時に確定してこの層に入る)
 
 同じ事実は複数のドキュメントに書かず、事実ごとに所有ドキュメントを1つ決めて他は参照する(事実の所有権マップ)。
 
@@ -85,10 +85,10 @@ Phase 5完了後 → イテレーション(変更サイクル):
 | 8 | 実装コードが未完(ソースコードが無い、またはprompts.mdのステップが途中) | Phase 5(実装中) | draft-implement |
 | 9 | 一通り動くものがある | イテレーション(変更サイクル) | draft-feature |
 
-判定1は「draft-adopt でソース層を逆生成してから変更サイクルに入る」経路(DRAFT外製のプロジェクト)。判定2はadopt完了後の受け皿 — adoptは意図的に concept / brainstorm / prompts.md を作らないため、この判定が無いと導入済みプロジェクトが判定3(Phase 0)や判定6(Phase 3)に誤って落ちる。
+判定1は「draft-adopt でソース層を逆生成してから変更サイクルに入る」経路(DRAFT外製のプロジェクト)。判定2はadopt完了後の受け皿。adoptは意図的に concept / brainstorm / prompts.md を作らないため、この判定が無いと導入済みプロジェクトが判定3(Phase 0)や判定6(Phase 3)に誤って落ちる。
 判定8と9の区別は機械的に決めにくいので、ソースディレクトリの有無や `docs/claude-code-prompts.md` の進捗を見た上で、迷ったらユーザーに「アプリは一通り動く状態ですか?」と確認する。
 
-判定2・9(イテレーション)の場合、`docs/features/` に未実装のFDD(System Design Docに反映されていない設計)が残っていれば draft-feature-implement を、新しい変更を設計するなら draft-feature を案内する(振る舞い(仕様)が変わらない変更 — リファクタ・依存更新・chore・仕様に実装を合わせるだけのバグ修正 — はFDD不要で、直接実装して draft-commit)。どちらか判断がつかなければユーザーに確認する。
+判定2・9(イテレーション)の場合、`docs/features/` に未実装のFDD(System Design Docに反映されていない設計)が残っていれば draft-feature-implement を、新しい変更を設計するなら draft-feature を案内する(振る舞い(仕様)が変わらない変更(リファクタ・依存更新・chore・仕様に実装を合わせるだけのバグ修正)はFDD不要で、直接実装して draft-commit)。どちらか判断がつかなければユーザーに確認する。
 
 診断時の補足:
 
@@ -156,15 +156,15 @@ concept.md -> brainstorm-notes.md -> design-spec.md    -> 01_prd.md            -
 
 診断結果に応じて、以下のいずれかを案内する:
 
-- 既存プロジェクト(DRAFT未導入) → draft-adopt — コードからソース層を逆生成して導入する
-- Phase 0 → draft-concept — コンセプトを1ページで言語化する
-- Phase 1 → draft-brainstorm — 壁打ちで画面とフローを具体化する
-- Phase 2 → draft-design-spec — 設計仕様書をMarkdownに書き出す
-- Phase 3 → draft-playbook — 開発ドキュメント一式(Playbook 6点)を作成する
-- Phase 4 → draft-prep — CLAUDE.mdとステップ別プロンプト集を作成する
-- Phase 5 → draft-implement — プロンプト集を順に実行して実装する
-- イテレーション(設計) → draft-feature — 変更の壁打ちとFDD作成を行う(FDD要否の判定を含む)
-- イテレーション(実装) → draft-feature-implement — 承認済みFDDを実装する
+- 既存プロジェクト(DRAFT未導入) → draft-adopt: コードからソース層を逆生成して導入する
+- Phase 0 → draft-concept: コンセプトを1ページで言語化する
+- Phase 1 → draft-brainstorm: 壁打ちで画面とフローを具体化する
+- Phase 2 → draft-design-spec: 設計仕様書をMarkdownに書き出す
+- Phase 3 → draft-playbook: 開発ドキュメント一式(Playbook 6点)を作成する
+- Phase 4 → draft-prep: CLAUDE.mdとステップ別プロンプト集を作成する
+- Phase 5 → draft-implement: プロンプト集を順に実行して実装する
+- イテレーション(設計) → draft-feature: 変更の壁打ちとFDD作成を行う(FDD要否の判定を含む)
+- イテレーション(実装) → draft-feature-implement: 承認済みFDDを実装する
 
 ## 注意
 

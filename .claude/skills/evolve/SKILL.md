@@ -9,7 +9,7 @@ description: DRAFTプラグイン自身の改善サイクル。「こうでき�
 
 draft-pluginを使っていて感じた違和感・アイデアを、その場でヒアリングから実装・検証まで回し切り、プラグインと方法論を進化させる。
 
-**思想: 課題をファイルに溜めない。** バックログやメモを残す代わりに、「こうできたらいいな」と思った瞬間にこのスキルを起動して改善を完了させる。見送った課題も記録しない——また思い出したら、もう一度evolveを回せばいい。
+**思想: 課題をファイルに溜めない。** バックログやメモを残す代わりに、「こうできたらいいな」と思った瞬間にこのスキルを起動して改善を完了させる。見送った課題も記録しない。また思い出したら、もう一度evolveを回せばいい。
 
 ## 前提(入力)
 
@@ -18,7 +18,7 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 
 ## このリポジトリの変更対象マップ
 
-このリポジトリ自身にもDRAFTの3層を適用する: **README(原典)とtemplates/原本=ソース、スキルとテンプレートコピー=派生(READMEの実装)、変更の経緯=git履歴。**
+このリポジトリ自身にもDRAFTの3層を適用する。README(原典)とtemplates/原本がソース、スキルとテンプレートコピーが派生(READMEの実装)、変更の経緯がgit履歴にあたる。
 真実の源は常にソース側の1箇所(方法論のspecはREADME、テンプレートはtemplates/原本)。食い違いは「どちらが正か」の問題ではなく「派生が古い」というバグであり、常にソースに合わせて直す。
 
 | 対象 | 層 | 役割 |
@@ -27,11 +27,11 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 | `draft-plugin/skills/*/SKILL.md` | 派生 | 方法論の**実装**(READMEに追随する。1スキル=1ディレクトリ。一覧は `draft-plugin/README.md` のスキル表) |
 | `draft-plugin/skills/*/` 内のテンプレート | 派生 | `templates/` 配下の**原本のコピー**(スキル実行時に参照される配布物) |
 | `templates/` | ソース | テンプレート原本 |
-| `dist/agents/skills/` | 派生 | Agent Skills対応クライアント(Codex・Cursor等)向けのスキル一式。`scripts/build-agent-skills.rb` が `draft-plugin/skills/` から生成(名前空間 `/draft:` → `draft-`)。**手で編集しない** — 正を直して再生成する |
+| `dist/agents/skills/` | 派生 | Agent Skills対応クライアント(Codex・Cursor等)向けのスキル一式。`scripts/build-agent-skills.rb` が `draft-plugin/skills/` から生成(名前空間 `/draft:` → `draft-`)。**手で編集しない**。正を直して再生成する |
 | `scripts/build-agent-skills.rb` | — | Agent Skills派生の生成器(`--check` で乖離検証。validate.rbが呼ぶ) |
 | `scripts/install-agent-skills.rb` | — | 派生をクライアントの探索先(`~/.agents/skills/` 等)へ導入するインストーラ |
-| `.agents/skills/` | 派生 | このリポジトリ用スキル(evolve)を Claude Code 以外(Codex等)からも起動するための複製。`scripts/build-agent-skills.rb` が `.claude/skills/` から生成。**手で編集しない** — 正(`.claude/skills/`)を直して再生成する |
-| `manual-flow.md` | アーカイブ | 手動フロー(初期実装)の手順集。**更新しない** — ここを直したくなったら、それはspec(README)かプラグインの課題 |
+| `.agents/skills/` | 派生 | このリポジトリ用スキル(evolve)を Claude Code 以外(Codex等)からも起動するための複製。`scripts/build-agent-skills.rb` が `.claude/skills/` から生成。**手で編集しない**。正(`.claude/skills/`)を直して再生成する |
+| `manual-flow.md` | アーカイブ | 手動フロー(初期実装)の手順集。**更新しない**。ここを直したくなったら、それはspec(README)かプラグインの課題 |
 | `draft-plugin/.claude-plugin/plugin.json` | — | プラグインマニフェスト(バージョン管理) |
 | `.claude-plugin/marketplace.json` | — | マーケットプレイス定義 |
 | `draft-plugin/README.md` | — | プラグインの説明書(スキル一覧表・インストール手順) |
@@ -40,7 +40,7 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 
 ### 1. 雑なヒアリング
 
-ユーザーの最初の一言は雑でよい。以下を軽く聞いて課題の輪郭を掴む(選択式・1テーマずつ。選択肢を提示できるツールがあれば使う — Claude Code なら AskUserQuestion、無ければ番号付きの選択肢を書く。2〜3往復で十分、全部聞く必要はない):
+ユーザーの最初の一言は雑でよい。以下を軽く聞いて課題の輪郭を掴む(選択式・1テーマずつ。選択肢を提示できるツールがあれば使う。Claude Code なら AskUserQuestion、無ければ番号付きの選択肢を書く。2〜3往復で十分、全部聞く必要はない):
 
 - いつ・どのスキル(フェーズ)を使っていて感じたか
 - 「困りごとの解消」か「新しく欲しいもの」か
@@ -77,7 +77,7 @@ draft-pluginを使っていて感じた違和感・アイデアを、その場�
 - 成果物パスの受け渡し(あるスキルの出力ファイル名=次のスキルの入力)を壊さない
 - 方法論に関わる変更はREADME(ソース)を先に直し、スキル・テンプレコピーを追随させる(影響範囲マップの方向に従う)
 - テンプレート変更は原本(`templates/`)を直し、コピー(`skills/` 内)へ反映する
-- `draft-plugin/skills/` か `.claude/skills/`(このスキル自身を含む)を変更したら Agent Skills派生を再生成する: `ruby scripts/build-agent-skills.rb`(生成先は `dist/agents/skills/` と `.agents/skills/`。どちらも派生 — 手で編集しない)
+- `draft-plugin/skills/` か `.claude/skills/`(このスキル自身を含む)を変更したら Agent Skills派生を再生成する: `ruby scripts/build-agent-skills.rb`(生成先は `dist/agents/skills/` と `.agents/skills/`。どちらも派生で、手で編集しない)
 - `plugin.json` のversionを上げる: 文言修正・バグ修正=patch、スキルの追加・挙動変更=minor
 - スキルの追加・削除・改名をしたら、`guide` の診断表・案内先一覧と `draft-plugin/README.md` のスキル表も更新する
 
@@ -102,7 +102,7 @@ ruby .claude/skills/evolve/validate.rb
 
 ## もう1つのモード: ルールGC(削る)
 
-evolveは課題を「足す」だけでなく「削る」ためにも使う。方法論の決まり事は放っておくと増える一方で、官僚化する。肥大を感じた瞬間に回す(定期スケジュールやGC待ちリストは作らない — 思想は通常モードと同じ)。
+evolveは課題を「足す」だけでなく「削る」ためにも使う。方法論の決まり事は放っておくと増える一方で、官僚化する。肥大を感じた瞬間に回す(定期スケジュールやGC待ちリストは作らない。思想は通常モードと同じ)。
 
 決まり事には2種類ある:
 
@@ -116,7 +116,7 @@ GCの対象は足場だけ。手順:
 3. 理由が失効していたら削除する。READMEから消し、派生(スキル・テンプレコピー)を追随させる
 4. 以降(検証・versionのbump・反映と報告・コミット)は通常モードの4〜6に従う。コミットメッセージに何を・なぜ削ったかを残す(経緯はgitが担う)
 
-削るか迷ったら、ルールの理由を現行の観察に合わせて書き直す — それ自体を今回の改善として完了してよい(理由が正確になっていれば、いつでも判断し直せる)。
+削るか迷ったら、ルールの理由を現行の観察に合わせて書き直す。それ自体を今回の改善として完了してよい(理由が正確になっていれば、いつでも判断し直せる)。
 
 ## 成果物
 

@@ -8,9 +8,9 @@
 
 | サービス | 特徴 | 選ぶ場合 |
 |---------|------|---------|
-| **Fly.io** | マルチリージョン、Machines（マイクロVM）、CLI中心 | グローバル配置・WebSocket・柔軟な構成が欲しい |
-| **Railway** | DXが良い、ダッシュボード中心、使用量課金 | とにかく速く置きたい、DB込みで1画面で管理したい |
-| **Render** | マネージドPostgres・cron・ワーカーが揃う、Heroku代替の本命 | Herokuライクな安定運用が欲しい |
+| Fly.io | マルチリージョン、Machines（マイクロVM）、CLI中心 | グローバル配置・WebSocket・柔軟な構成が欲しい |
+| Railway | DXが良い、ダッシュボード中心、使用量課金 | とにかく速く置きたい、DB込みで1画面で管理したい |
+| Render | マネージドPostgres・cron・ワーカーが揃う、Heroku代替の本命 | Herokuライクな安定運用が欲しい |
 
 以下のマッピングはFly.ioを主に書く（Railway/Renderは概ね同型で、対応物を併記）。
 

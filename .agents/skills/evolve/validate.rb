@@ -142,6 +142,67 @@ else
   warnings << "Agent Skills生成スクリプトが無い: scripts/build-agent-skills.rb"
 end
 
+# --- 7. 文体(README原典「テクニカルドキュメントとして書く」の決定論的な部分) ---
+# 判断が要る部分(対句・誇張・翻訳調)は宣言側が持つ。ここで見るのは機械で判定できるものだけ。
+# インラインコードとコードブロックは「言及」であって「使用」ではないので除く。
+JP_CHAR  = /[\p{Hiragana}\p{Katakana}\p{Han}、。「」（）・]/
+BOLD_MAX = 48
+
+style_files = [
+  File.join(ROOT, 'README.md'),
+  File.join(PLUGIN, 'README.md'),
+  *Dir[File.join(PLUGIN, 'skills', '**', '*.{md,sh,mermaid}')],
+  *Dir[File.join(ROOT, 'templates', '**', '*.{md,sh,mermaid}')],
+  *Dir[File.join(ROOT, '.claude', 'skills', '**', '*.md')],
+].uniq.select { |f| File.file?(f) }
+
+style_files.each do |path|
+  rel      = path.sub("#{ROOT}/", '')
+  in_fence = false
+  File.readlines(path).each_with_index do |line, i|
+    if line.strip.start_with?('```')
+      in_fence = !in_fence
+      next
+    end
+    next if in_fence
+
+    text = line.gsub(/`[^`]*`/, '')
+    n    = i + 1
+
+    # 見出しの「タイトル — サブタイトル」と、表の「該当なし」を示す単独のem dashは対象外。
+    # 狙いは和文の本文に挿入句の区切りとして入るem dashであって、これらは別の用法。
+    heading = (path.end_with?('.md') && text.match?(/\A\s*\#{1,6}\s/)) ||
+              (path.end_with?('.mermaid') && text.match?(/\A\s*%%/))
+    scan_text = text
+    if scan_text.strip.start_with?('|')
+      scan_text = scan_text.split('|').map { |c| c.strip == '—' ? ' ' : c }.join('|')
+    end
+
+    idx = 0
+    scan_text = '' if heading
+    while (pos = scan_text.index('—', idx))
+      pre  = scan_text[[0, pos - 12].max...pos].to_s
+      post = scan_text[pos + 1, 12].to_s
+      if pre.match?(JP_CHAR) || post.match?(JP_CHAR)
+        errors << "#{rel}:#{n}: 和文中のem dash。読点・括弧・文の分割か「ラベル: 説明」に置き換える"
+      end
+      idx = pos + 1
+    end
+
+    text.scan(/\*\*([^*]+)\*\*/).each do |m|
+      next unless m[0].length > BOLD_MAX
+      errors << "#{rel}:#{n}: 太字が#{m[0].length}字(上限#{BOLD_MAX}字)。太字は段落の頭の短いラベルとUI要素にだけ使う"
+    end
+
+    # 表の1列目(ラベル列)の太字だけを見る。列の位置がすでにラベルを示しており、太字は何も指していない。
+    # 2列目以降の太字は、並んだ選択肢の中から採用するものを指すなど意味を運ぶことがあるので機械で判定しない。
+    if text.strip.start_with?('|')
+      first = text.strip.sub(/\A\|/, '').split('|').first.to_s
+      errors << "#{rel}:#{n}: 表の1列目が太字。列の位置がラベルを示すので太字は要らない" if first.include?('**')
+    end
+  end
+end
+
 # --- 結果 ---
 puts "スキル: #{skill_names.join(', ')}"
 puts

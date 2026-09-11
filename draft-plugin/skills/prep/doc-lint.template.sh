@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# doc-lint — 機械で判定できる違反の検出点(DRAFT)
+# doc-lint: 機械で判定できる違反の検出点(DRAFT)
 #
 # 検出は機械が行い、扱いは人が決める:
 # - 自分の変更が作った先送りマーカーは、その場で閉じる(先送りの原則)
@@ -60,11 +60,50 @@ staged_checks() {
     finding '追加行にシークレットらしきトークン:'
     printf '%s\n' "$sec" | head -5
   fi
+
+  # 5. 文体(README原典「テクニカルドキュメントとして書く」の決定論的な部分)
+  #    対句・誇張・翻訳調のような文脈判断はレビューが担う。ここは機械で判定できるものだけ。
+  #    インラインコードは「言及」であって「使用」ではないので落とす。
+  md=$(added_lines '*.md' | sed 's/^+//; s/`[^`]*`//g')
+
+  # 5-1. 本文中のem dash。「ラベル: 説明」の形に書く。
+  #      見出しでタイトルとサブタイトルを分けるダッシュと、表の「該当なし」を示す単独のダッシュは別の用法なので除く。
+  em=$(printf '%s\n' "$md" | grep -v '^[[:space:]]*#' \
+    | sed 's/|[[:space:]]*—[[:space:]]*|/| |/g' | grep -- '—' || true)
+  if [ -n "$em" ]; then
+    finding '追加行の本文にem dashがある。読点・括弧・文の分割か「ラベル: 説明」に置き換える:'
+    printf '%s\n' "$em" | head -10
+  fi
+
+  # 5-2. 表の1列目の太字。列の位置がすでにラベルを示しており、太字は何も指していない。
+  #      2列目以降の太字は、並んだ選択肢から採用するものを指すなど意味を運ぶことがあるので見ない。
+  tb=$(printf '%s\n' "$md" | grep -E '^[[:space:]]*\|[^|]*\*\*' || true)
+  if [ -n "$tb" ]; then
+    finding '追加行に、表の1列目を太字にした箇所がある。列の位置がラベルを示すので太字は要らない:'
+    printf '%s\n' "$tb" | head -10
+  fi
+
+  # 5-3. 文を丸ごと覆う太字。太字は段落の頭に置く短いラベルとUI要素にだけ使う。
+  #      文字数で数えるため、UTF-8ロケールでないときは検査しない(バイト数で誤検出するため)。
+  case "${LC_ALL:-${LC_CTYPE:-${LANG:-}}}" in
+    *[Uu][Tt][Ff]*)
+      # 短い太字を先に落としてから残りを見る。左から順に対にするため、
+      # 隣り合う太字の「あいだ」にある地の文を太字と読み違えない。
+      bl=$(printf '%s\n' "$md" | while IFS= read -r l; do
+        printf '%s\n' "$l" | sed -E 's/\*\*[^*]{1,48}\*\*//g' \
+          | grep -qE '\*\*[^*]+\*\*' && printf '%s\n' "$l"
+      done)
+      if [ -n "$bl" ]; then
+        finding '追加行に、48字を超える太字がある。太字は段落の頭の短いラベルとUI要素にだけ使う:'
+        printf '%s\n' "$bl" | head -10
+      fi
+      ;;
+  esac
 }
 
 docs_checks() {
   # 1. CLAUDE.md / docs/ がコードスパンで参照する `make <target>` が Makefile に実在するか
-  #    (バッククォート付きの参照だけを対象にする — 地の文の "make sure" 等を拾わないため)
+  #    (バッククォート付きの参照だけを対象にする。地の文の "make sure" 等を拾わないため)
   if [ -f Makefile ]; then
     for t in $(grep -rhoE '`make [a-z][a-z0-9-]*' CLAUDE.md docs/*.md 2>/dev/null | sed 's/^`make //' | sort -u); do
       grep -qE "^$t[[:space:]]*:" Makefile \
