@@ -203,6 +203,35 @@ style_files.each do |path|
   end
 end
 
+# --- 8. 名前空間を保護した行が派生でも原文のままか ---
+# 子プロセスの Claude Code 本体に渡すプロンプトは、フラット名に変換すると解決しない。
+# 過去に2度、駆動スクリプトの起動プロンプトが変換されてループが何も起動しない状態で
+# 出荷されかけている。印を付けた行が派生でも生き残っていることを機械で確かめる。
+{
+  File.join(PLUGIN, 'skills') => File.join(ROOT, 'dist', 'agents', 'skills'),
+  File.join(ROOT, '.claude', 'skills') => File.join(ROOT, '.agents', 'skills'),
+}.each do |src_root, dst_root|
+  prefix = dst_root.include?('dist') ? 'draft-' : ''
+  Dir[File.join(src_root, '**', '*')].select { |f| File.file?(f) }.sort.each do |src|
+    marked = File.readlines(src).select { |l| l.include?('draft-keep-namespace') }
+    next if marked.empty?
+
+    rel   = src.sub("#{src_root}/", '')
+    skill = rel.split('/').first
+    dst   = File.join(dst_root, "#{prefix}#{skill}", rel.split('/')[1..].join('/'))
+    unless File.exist?(dst)
+      errors << "名前空間の保護: 派生が無い: #{dst.sub("#{ROOT}/", '')}"
+      next
+    end
+
+    body = File.read(dst)
+    marked.each do |line|
+      next if body.include?(line)
+      errors << "名前空間の保護: 派生で書き換えられている: #{dst.sub("#{ROOT}/", '')}: #{line.strip}"
+    end
+  end
+end
+
 # --- 結果 ---
 puts "スキル: #{skill_names.join(', ')}"
 puts

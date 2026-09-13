@@ -47,6 +47,10 @@ TEXT_EXT = %w[.md .mermaid .sh .json .txt].freeze
 # そこではプラグイン名前空間が生きている(フラット名に変えると解決しなくなる)。
 # 無人ループの駆動スクリプトがこの形で自分自身を起動する。
 CLAUDE_CLI_ARG = /claude\s+-p\s+(?:'[^']*'|"[^"]*")/
+
+# 行末に draft-keep-namespace を書いた行も変換しない。子プロセスに渡すプロンプトを
+# 変数へ切り出すと `claude -p '...'` の形が消えて上のガードから外れるので、その場で印を付ける。
+KEEP_LINE = /^.*draft-keep-namespace.*$/
 GUARD = "\u0000GUARD%d\u0000"
 
 # プラグイン名前空間をフラット名に変換する:
@@ -54,7 +58,11 @@ GUARD = "\u0000GUARD%d\u0000"
 #   /draft:(スキル名を伴わない総称) → draft-*
 def flatten_namespace(text)
   guarded = []
-  masked  = text.gsub(CLAUDE_CLI_ARG) do |hit|
+  masked  = text.gsub(KEEP_LINE) do |hit|
+    guarded << hit
+    format(GUARD, guarded.size - 1)
+  end
+  masked = masked.gsub(CLAUDE_CLI_ARG) do |hit|
     guarded << hit
     format(GUARD, guarded.size - 1)
   end

@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
 #
-# DRAFT Phase 5: 無人ループ駆動スクリプト
+# DRAFT: 無人ループ駆動スクリプト
 #
-# docs/claude-code-prompts.md の未着手ステップを、1ステップにつき1セッションで
-# 消化しきる。各反復は `claude -p '/draft:implement loop'` を新しいセッションとして
-# 起こすため、コンテキストはステップごとに完全にリセットされる。
+# 2つのモードがある。どちらも1つの作業単位につき1セッションを新しく起こすため、
+# コンテキストは単位ごとに完全にリセットされる。
+#
+#   phase5     (既定) docs/claude-code-prompts.md の未着手ステップを消化する。
+#                     各反復は `claude -p '/draft:implement loop'`。
+#   iteration         docs/features/ の未実装FDDを古い順に消化する。
+#                     各反復は `claude -p '/draft:feature-implement loop'`。
+#                     未実装かどうかはgitから導く(FDDに状態欄は作らない)。
 #
 # 使い方:
-#   bash scripts/draft-loop.sh
+#   bash scripts/draft-loop.sh                             # Phase 5
+#   DRAFT_LOOP_MODE=iteration bash scripts/draft-loop.sh   # イテレーション
 #
 # 環境変数:
+#   DRAFT_LOOP_MODE             phase5 | iteration (既定: phase5)
 #   DRAFT_LOOP_PROMPTS          プロンプト集のパス (既定: docs/claude-code-prompts.md)
+#   DRAFT_LOOP_FEATURES         FDDのディレクトリ (既定: docs/features)
 #   DRAFT_LOOP_MAX_ITER         反復の上限 (既定: 30)
 #   DRAFT_LOOP_PERMISSION_MODE  claude --permission-mode に渡す値 (既定: acceptEdits)
 #   DRAFT_LOOP_SKIP_PREFLIGHT   1 で走行前の独立レビュー確認を飛ばす
@@ -32,17 +40,19 @@
 # (累計の待機が上限に達した) ときだけ止める。
 #
 # 終了コード:
-#   0  全ステップが done
-#   1  前提の不足 (プロンプト集が無い / claude が無い)
-#   2  blocked で停止 (人の判断が要る)
-#   3  同じステップが2回続けて Status を更新せずに終わった (クラッシュ等)
+#   0  作業単位が尽きた (全ステップが done / 未実装FDDが無い)
+#   1  前提の不足 (プロンプト集やFDDが無い / claude が無い / gitリポジトリでない)
+#   2  保留で停止 (人の判断が要る)
+#   3  同じ単位が2回続けて進捗を残さずに終わった (クラッシュ等)
 #   4  反復の上限に到達
 #   5  独立レビュー(サブエージェント)を起動できない
 #   6  利用上限での待機が累計上限に達した
 
 set -uo pipefail
 
+MODE="${DRAFT_LOOP_MODE:-phase5}"
 PROMPTS="${DRAFT_LOOP_PROMPTS:-docs/claude-code-prompts.md}"
+FEATURES="${DRAFT_LOOP_FEATURES:-docs/features}"
 MAX_ITER="${DRAFT_LOOP_MAX_ITER:-30}"
 PERMISSION_MODE="${DRAFT_LOOP_PERMISSION_MODE:-acceptEdits}"
 LIMIT_WAIT_CAP="${DRAFT_LOOP_LIMIT_WAIT_CAP:-21600}"
@@ -51,6 +61,7 @@ LIMIT_PATTERN="${DRAFT_LOOP_LIMIT_PATTERN:-limit reached|hit your [a-z0-9 -]*lim
 
 START_REF=""
 SESSION_LOG=""
+KEEP_LOG=0
 LIMIT_WAITED=0
 
 log() { printf '\n\033[1m[draft-loop]\033[0m %s\n' "$*"; }
@@ -68,11 +79,57 @@ steps() {
   ' "$PROMPTS"
 }
 
-first_pending()  { steps | awk -F'\t' '$2 == "" { print $1; exit }'; }
-first_blocked()  { steps | awk -F'\t' '$2 ~ /^blocked/ { print $1; exit }'; }
+# iteration用の作業リスト。docs/features/ のFDDを古い順に並べる(ファイル名が時系列)。
+fdds() { ls -1 "$FEATURES"/*.md 2>/dev/null | grep -v '/README\.md$' | sort; }
 
-# 指定した見出しの Status 値を返す(1反復の結果を読むため)
-status_of() { steps | awk -F'\t' -v h="$1" '$1 == h { print $2; exit }'; }
+# FDDが実装済みか(終了コード0で実装済み)。
+# 実装済み = そのFDDに触れたコミットのうち、docs/features/ の外にも触れたものがある。
+# サイクルのコミットは実装・ソースDoc更新・FDDを1つにまとめるので、この条件で判定できる。
+# 状態はFDDではなくgitが持つ。
+fdd_implemented() {
+  git log --format=%H -- "$1" 2>/dev/null \
+    | while read -r c; do git diff-tree --no-commit-id --name-only -r "$c" < /dev/null; done \
+    | grep -qv "^${FEATURES}/"
+}
+
+first_pending() {
+  case "$MODE" in
+    iteration) fdds | while read -r f; do
+                 fdd_implemented "$f" || { printf '%s\n' "$f"; break; }
+               done ;;
+    *)         steps | awk -F'\t' '$2 == "" { print $1; exit }' ;;
+  esac
+}
+
+# iteration には状態欄が無いので、保留は走行を始める前には現れない(走行中に検出する)。
+first_blocked() {
+  case "$MODE" in
+    iteration) : ;;
+    *)         steps | awk -F'\t' '$2 ~ /^blocked/ { print $1; exit }' ;;
+  esac
+}
+
+# 1反復の結果を読む。phase5 は Status 値、iteration は実装済みなら done。
+status_of() {
+  case "$MODE" in
+    iteration) fdd_implemented "$1" && printf 'done\n' ;;
+    *)         steps | awk -F'\t' -v h="$1" '$1 == h { print $2; exit }' ;;
+  esac
+}
+
+label_of() {
+  case "$MODE" in
+    iteration) basename "$1" ;;
+    *)         printf '%s\n' "${1#\#\# }" ;;
+  esac
+}
+
+session_prompt() {
+  case "$MODE" in
+    iteration) printf '/draft:feature-implement loop\n' ;;  # draft-keep-namespace
+    *)         printf '/draft:implement loop\n' ;;             # draft-keep-namespace
+  esac
+}
 
 # 経過時間を mm:ss で
 elapsed() { printf '%d:%02d' $(( SECONDS / 60 )) $(( SECONDS % 60 )); }
@@ -107,7 +164,7 @@ audit() {
 
 cleanup() {
   audit
-  if [ -n "$SESSION_LOG" ]; then rm -f "$SESSION_LOG"; fi
+  if [ -n "$SESSION_LOG" ] && [ "$KEEP_LOG" = 0 ]; then rm -f "$SESSION_LOG"; fi
 }
 
 # 標準入力から利用上限のメッセージを抜き出す(無ければ何も出さない)。
@@ -225,12 +282,14 @@ for line in sys.stdin:
 # 出力は $SESSION_LOG にも落とす(利用上限のメッセージを走行後に読むため)。
 run_step() {
   : > "$SESSION_LOG"
+  local prompt
+  prompt="$(session_prompt)"
 
   if [ "${DRAFT_LOOP_RAW:-0}" = "1" ] || ! command -v python3 >/dev/null 2>&1; then
-    claude -p '/draft:implement loop' --permission-mode "$PERMISSION_MODE" < /dev/null | tee "$SESSION_LOG"
+    claude -p "$prompt" --permission-mode "$PERMISSION_MODE" < /dev/null | tee "$SESSION_LOG"
     return "${PIPESTATUS[0]}"
   fi
-  claude -p '/draft:implement loop' --permission-mode "$PERMISSION_MODE" \
+  claude -p "$prompt" --permission-mode "$PERMISSION_MODE" \
       --output-format stream-json --verbose < /dev/null | tee "$SESSION_LOG" | format_progress
   return "${PIPESTATUS[0]}"
 }
@@ -274,10 +333,28 @@ preflight_review() {
 
 command -v claude >/dev/null 2>&1 || { log "claude が PATH にありません。"; exit 1; }
 
-if [ ! -f "$PROMPTS" ]; then
-  log "$PROMPTS が見つかりません。Phase 4 (draft-prep) が未完了です。"
-  exit 1
-fi
+case "$MODE" in
+  iteration)
+    git rev-parse --git-dir >/dev/null 2>&1 || {
+      log "gitリポジトリではありません。iterationモードは実装済みの判定をgitから導きます。"
+      exit 1
+    }
+    if [ -z "$(fdds)" ]; then
+      log "$FEATURES にFDDがありません。先に draft-feature で設計してください。"
+      exit 1
+    fi
+    ;;
+  phase5)
+    if [ ! -f "$PROMPTS" ]; then
+      log "$PROMPTS が見つかりません。Phase 4 (draft-prep) が未完了です。"
+      exit 1
+    fi
+    ;;
+  *)
+    log "DRAFT_LOOP_MODE の値が不正です: ${MODE} (phase5 か iteration)"
+    exit 1
+    ;;
+esac
 
 SESSION_LOG="$(mktemp "${TMPDIR:-/tmp}/draft-loop.XXXXXX")" || { log "一時ファイルを作れません。"; exit 1; }
 
@@ -289,7 +366,10 @@ fi
 
 trap cleanup EXIT
 
-log "対象: $PROMPTS / 上限: ${MAX_ITER}反復 / 権限: ${PERMISSION_MODE}"
+case "$MODE" in
+  iteration) log "対象: $FEATURES の未実装FDD / 上限: ${MAX_ITER}反復 / 権限: ${PERMISSION_MODE}" ;;
+  *)         log "対象: $PROMPTS / 上限: ${MAX_ITER}反復 / 権限: ${PERMISSION_MODE}" ;;
+esac
 
 preflight_review
 
@@ -299,18 +379,21 @@ repeat=0
 for (( iter = 1; iter <= MAX_ITER; iter++ )); do
   blocked="$(first_blocked)"
   if [ -n "$blocked" ]; then
-    log "保留で停止: ${blocked#\#\# }"
+    log "保留で停止: $(label_of "$blocked")"
     log "理由は $PROMPTS の該当 Status: 行の直後にあります。人の判断を入れてから再実行してください。"
     exit 2
   fi
 
   target="$(first_pending)"
   if [ -z "$target" ]; then
-    log "全ステップが done です。Phase 5 完了。"
+    case "$MODE" in
+      iteration) log "未実装のFDDはありません。次の変更は draft-feature で設計してください。" ;;
+      *)         log "全ステップが done です。Phase 5 完了。" ;;
+    esac
     exit 0
   fi
 
-  label="${target#\#\# }"
+  label="$(label_of "$target")"
 
   if [ "$target" = "$prev_target" ]; then
     repeat=$(( repeat + 1 ))
@@ -320,7 +403,7 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
   fi
 
   if [ "$repeat" -ge 3 ]; then
-    log "停止: ${label} が2回続けて Status を更新せずに終わりました。"
+    log "停止: ${label} が2回続けて進捗を残さずに終わりました。"
     log "セッションのクラッシュかコンテキスト切れの可能性があります(利用上限なら自動で待つので、これには当たりません)。手動で状況を確認してください。"
     exit 3
   fi
@@ -346,6 +429,21 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
       iter=$(( iter - 1 ))
       repeat=$(( repeat - 1 ))
       continue
+    fi
+  fi
+
+  # iteration には状態欄が無い。人の判断が要って止まった反復は理由を1行で宣言するので、
+  # それを走行ログから拾う。宣言が無いまま閉じなかった反復は、上の停滞判定に回る。
+  if [ "$MODE" = iteration ] && [ -z "$after" ]; then
+    stop="$(tail -c 65536 "$SESSION_LOG" 2>/dev/null \
+      | grep -oE 'DRAFT-LOOP-STOP:[^"\\]*' | tail -n 1)"
+    if [ -n "$stop" ]; then
+      KEEP_LOG=1
+      log "保留で停止: ${label} ($(elapsed))"
+      log "${stop}"
+      log "停止したセッションの全出力: $SESSION_LOG"
+      log "人の判断を入れてから再実行してください。"
+      exit 2
     fi
   fi
 
