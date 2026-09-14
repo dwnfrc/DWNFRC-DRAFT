@@ -8,8 +8,10 @@
 #   phase5     (既定) docs/claude-code-prompts.md の未着手ステップを消化する。
 #                     各反復は `claude -p '/draft:implement loop'`。
 #   iteration         docs/features/ の未実装FDDを古い順に消化する。
-#                     各反復は `claude -p '/draft:feature-implement loop'`。
+#                     各反復は `claude -p '/draft:feature-implement loop <FDDのパス>'`。
+#                     パスを渡すのは、子セッションが自分を1反復と読み分けるため。
 #                     未実装かどうかはgitから導く(FDDに状態欄は作らない)。
+#                     各反復は始めたブランチへ戻って終わる前提で、戻っていなければ止める。
 #
 # 使い方:
 #   bash scripts/draft-loop.sh                             # Phase 5
@@ -60,6 +62,7 @@ LIMIT_FALLBACK_WAIT="${DRAFT_LOOP_LIMIT_WAIT:-900}"
 LIMIT_PATTERN="${DRAFT_LOOP_LIMIT_PATTERN:-limit reached|hit your [a-z0-9 -]*limit|limit will reset|limit[^a-zA-Z]*resets}"
 
 START_REF=""
+START_BRANCH=""
 SESSION_LOG=""
 KEEP_LOG=0
 LIMIT_WAITED=0
@@ -86,10 +89,17 @@ fdds() { ls -1 "$FEATURES"/*.md 2>/dev/null | grep -v '/README\.md$' | sort; }
 # 実装済み = そのFDDに触れたコミットのうち、docs/features/ の外にも触れたものがある。
 # サイクルのコミットは実装・ソースDoc更新・FDDを1つにまとめるので、この条件で判定できる。
 # 状態はFDDではなくgitが持つ。
+# grep の終了コードは実装や対話シェルで読み違えやすいので、出力そのもので判定する。
+# git diff-tree に --root を付けない。付けるとrootコミットが全ファイルを足したものとして出る。
+# FDDと実装コードが同じ初期コミットに入っているリポジトリでは、それが「実装済み」に見えて
+# 未実装のFDDを黙って飛ばす。付けない場合の外れ方は「未実装のまま」であり、
+# 実装が進めば必ず親を持つコミットが触れるので、安全な側に倒れる。
 fdd_implemented() {
-  git log --format=%H -- "$1" 2>/dev/null \
+  local hits
+  hits=$(git log --format=%H -- "$1" 2>/dev/null \
     | while read -r c; do git diff-tree --no-commit-id --name-only -r "$c" < /dev/null; done \
-    | grep -qv "^${FEATURES}/"
+    | grep -v "^${FEATURES}/" | head -1)
+  [ -n "$hits" ]
 }
 
 first_pending() {
@@ -124,10 +134,12 @@ label_of() {
   esac
 }
 
+# 子セッションに「自分が1反復である」ことと対象を渡す。パスが無いと、スキル側は
+# セットアップ依頼と読み分けられず、何も実装せずに終わる。
 session_prompt() {
   case "$MODE" in
-    iteration) printf '/draft:feature-implement loop\n' ;;  # draft-keep-namespace
-    *)         printf '/draft:implement loop\n' ;;             # draft-keep-namespace
+    iteration) printf '/draft:feature-implement loop %s\n' "$1" ;;  # draft-keep-namespace
+    *)         printf '/draft:implement loop\n' ;;                  # draft-keep-namespace
   esac
 }
 
@@ -283,7 +295,7 @@ for line in sys.stdin:
 run_step() {
   : > "$SESSION_LOG"
   local prompt
-  prompt="$(session_prompt)"
+  prompt="$(session_prompt "$1")"
 
   if [ "${DRAFT_LOOP_RAW:-0}" = "1" ] || ! command -v python3 >/dev/null 2>&1; then
     claude -p "$prompt" --permission-mode "$PERMISSION_MODE" < /dev/null | tee "$SESSION_LOG"
@@ -362,6 +374,7 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
   # --verify --quiet はコミットが無いとき何も出さずに失敗する。
   # 素の `git rev-parse HEAD` は "HEAD" という文字列を吐くので使えない。
   START_REF="$(git rev-parse --verify --quiet HEAD || true)"
+  START_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 fi
 
 trap cleanup EXIT
@@ -415,8 +428,21 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
   fi
 
   SECONDS=0
-  run_step
+  run_step "$target"
   rc=$?
+
+  # 履歴を読む前に、始めたブランチへ戻っていることを確かめる。作業ブランチに残ったまま
+  # 終えると、取り込んでいない変更がそのブランチの履歴に見えて実装済みと誤判定される。
+  if [ "$MODE" = iteration ] && [ -n "$START_BRANCH" ]; then
+    now_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+    if [ "$now_branch" != "$START_BRANCH" ]; then
+      KEEP_LOG=1
+      log "停止: ${label} が ${START_BRANCH} ではなく ${now_branch} で終わりました ($(elapsed))"
+      log "変更を取り込めていない可能性があります。${START_BRANCH} に戻して状況を確認してください。"
+      log "停止したセッションの全出力: $SESSION_LOG"
+      exit 2
+    fi
+  fi
 
   after="$(status_of "$target")"
 
