@@ -25,6 +25,9 @@
 #   DRAFT_LOOP_PERMISSION_MODE  claude --permission-mode に渡す値 (既定: acceptEdits)
 #   DRAFT_LOOP_SKIP_PREFLIGHT   1 で走行前の独立レビュー確認を飛ばす
 #   DRAFT_LOOP_RAW              1 で進捗の整形をやめ、claude の生出力をそのまま流す
+#
+# 進捗を残さずに終わった反復のセッションログは消さずに残し、パスを走行ログに出す。
+# 終わり方(自分で発話を終えたのか落ちたのか)は、そこを読まないと分からない。
 #   DRAFT_LOOP_LIMIT_WAIT_CAP   利用上限での待機の累計上限・秒 (既定: 21600 = 6時間)
 #   DRAFT_LOOP_LIMIT_WAIT       リセット時刻を読めなかったときの1回の待機・秒 (既定: 900)
 #   DRAFT_LOOP_LIMIT_PATTERN    利用上限メッセージの検出パターン (grep -E。文言が変わったとき用)
@@ -290,6 +293,54 @@ for line in sys.stdin:
 '
 }
 
+# 進捗も理由も残さずに終わった反復の「終わり方」を示す。無人セッションは、ツール実行を
+# 伴わない発話でターンを閉じた時点で終わる。最後が発話なら自分で終端したということで、
+# 最後がツール実行なら落ちたか中断されたということである。この2つは原因も対処も違うのに、
+# 走行ログからは同じ「未記録のまま終了」に見える。ログを消さずに残すのも同じ理由で、
+# 後から読める経路がここしか無い。
+session_tail() {
+  command -v python3 >/dev/null 2>&1 || return 0
+  python3 - "$SESSION_LOG" <<'EOF'
+import json, sys
+
+last_text = ""
+last_kind = ""
+turns = None
+try:
+    fh = open(sys.argv[1], encoding="utf-8", errors="replace")
+except OSError:
+    sys.exit(0)
+with fh:
+    for line in fh:
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            ev = json.loads(line)
+        except ValueError:
+            continue
+        if ev.get("type") == "assistant":
+            for c in ev.get("message", {}).get("content", []):
+                kind = c.get("type")
+                if kind in ("text", "tool_use"):
+                    last_kind = kind
+                if kind == "text":
+                    t = " ".join(c.get("text", "").split())
+                    if t:
+                        last_text = t
+        elif ev.get("type") == "result":
+            turns = ev.get("num_turns")
+
+if turns is not None:
+    print("  ターン数: %s" % turns)
+if last_kind == "text" and last_text:
+    print("  最後は発話でターンを閉じています（無人ではこれが終端です）:")
+    print("    %s" % last_text[:200])
+elif last_kind == "tool_use":
+    print("  最後はツール実行の途中で切れています（クラッシュか中断の疑い）。")
+EOF
+}
+
 # 1ステップを新しいセッションで実行する。claude の終了コードを返す。
 # 出力は $SESSION_LOG にも落とす(利用上限のメッセージを走行後に読むため)。
 run_step() {
@@ -416,8 +467,10 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
   fi
 
   if [ "$repeat" -ge 3 ]; then
+    KEEP_LOG=1
     log "停止: ${label} が2回続けて進捗を残さずに終わりました。"
-    log "セッションのクラッシュかコンテキスト切れの可能性があります(利用上限なら自動で待つので、これには当たりません)。手動で状況を確認してください。"
+    log "クラッシュ、コンテキスト切れ、または反復が自分で発話を終えた可能性があります(利用上限なら自動で待つので、これには当たりません)。"
+    log "直前のセッションの全出力: $SESSION_LOG"
     exit 3
   fi
 
@@ -476,7 +529,10 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
   case "$after" in
     done*)    log "完了: ${label} ($(elapsed))" ;;
     blocked*) log "保留: ${label} ($(elapsed))。次の判定で停止します" ;;
-    *)        log "未記録のまま終了: ${label} ($(elapsed), claude終了コード ${rc})" ;;
+    *)        KEEP_LOG=1
+              log "未記録のまま終了: ${label} ($(elapsed), claude終了コード ${rc})"
+              session_tail
+              log "このセッションの全出力: $SESSION_LOG" ;;
   esac
 done
 
