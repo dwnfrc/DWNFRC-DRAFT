@@ -20,6 +20,8 @@
 | `/draft:adopt` | 導入 | 既存プロジェクト(DRAFT外製)にソース層を逆生成して導入(調査→ヒアリング→現状版ドラフト→検証→検出点配置) | `docs/` ソース層4点 + `CLAUDE.md` + `scripts/doc-lint.sh` |
 | `/draft:branch` | 補助 | 作業開始前に、戦略と変更規模から「main継続かブランチ作成か」を決めて準備 | 作業場所の決定(必要ならブランチ) |
 | `/draft:commit` | 補助 | リポジトリの流儀に合ったメッセージ・粒度でコミット | コミット |
+| `/draft:equip-extensions` | 補助 | 拡張機能で補いたい作業を推奨をつけて聞き、コーディングエージェントの拡張機能(スキル・プラグイン・MCPサーバーなど)を、その時点の候補から選んで入れる(Phase 2でモックを描く前・Phase 3の技術選定の直後・変更サイクルの壁打ち) | 入れた拡張機能、ADRと `docs/03_dev-setup.md` の記録(変更サイクルではFDDへの記載) |
+| `/draft:inspect-extensions` | 補助 | コーディングエージェントの拡張機能のうち、記録したものと設定に入っているものを、記録と実際・中身の変化・ADRとの食い違い・使う環境の4点で点検 | 点検結果の報告 |
 
 迷ったら `/draft:guide` から始める。ブランチ戦略は `docs/03_dev-setup.md` が真実の源で、未定義ならbranchスキルがヒアリングして追記する。
 
@@ -98,7 +100,9 @@ draft-plugin/
     ├── feature/SKILL.md + feature-design-doc.template.md
     ├── feature-implement/SKILL.md
     ├── branch/SKILL.md
-    └── commit/SKILL.md
+    ├── commit/SKILL.md
+    ├── equip-extensions/SKILL.md
+    └── inspect-extensions/SKILL.md
 ```
 
 テンプレートの原本は [`../templates/`](../templates/) にあり、各スキルフォルダには実行時に参照するコピーを同梱している。方法論の原典は [`../README.md`](../README.md)。
