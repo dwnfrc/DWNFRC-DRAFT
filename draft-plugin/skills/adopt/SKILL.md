@@ -94,7 +94,7 @@ Step 1の未確認一覧のうちユーザーが即答できそうな事項(意�
 
 ## 次のフェーズ
 
-/draft:feature で変更サイクルを開始する(FDD要否判定から)。`concept.md` / `brainstorm-notes.md` は作らない。アーカイブ層は空から始まり、以後の経緯はFDDとgit履歴が蓄積する。
+/draft:feature で変更サイクルを開始する(FDD要否判定から)。`concept.md` / `brainstorm-notes.md` は作らない。UIモックも描かない(見た目はすでに実装にある)。アーカイブ層は空から始まり、以後の経緯はFDDとgit履歴が蓄積する。
 
 ## 注意
 

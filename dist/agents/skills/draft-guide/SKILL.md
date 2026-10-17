@@ -44,7 +44,7 @@ Phase 5完了後 → イテレーション(変更サイクル):
 
 - **ソース**(design-spec、PRD、System Design Doc、dev-setup等): 実装を再現するための正。常に現在の状態を反映する
 - **派生**(CLAUDE.md、claude-code-prompts.md、docs/README.md): ソースから再生成可能
-- **アーカイブ**(concept.md、brainstorm-notes.md、FDD): 経緯の記録。書き換えず蓄積する(FDDは対象サイクルの実装完了時に確定してこの層に入る)
+- **アーカイブ**(concept.md、brainstorm-notes.md、mocks/、FDD): 経緯の記録。書き換えず蓄積する(FDDは対象サイクルの実装完了時に確定してこの層に入る。UIモックはPhase 2で合意した時点で確定し、Phase 5を終えたら設計の入力にしない)
 
 同じ事実は複数のドキュメントに書かず、事実ごとに所有ドキュメントを1つ決めて他は参照する(事実の所有権マップ)。
 
@@ -54,7 +54,7 @@ Phase 5完了後 → イテレーション(変更サイクル):
 |-------|------|--------|-----------|
 | 0 | コンセプトを1ページで言語化 | draft-concept | docs/concept.md |
 | 1 | 壁打ちで画面とフローが見えるレベルに具体化 | draft-brainstorm | docs/brainstorm-notes.md |
-| 2 | 設計仕様書としてMarkdownに書き出す | draft-design-spec | docs/design-spec.md, docs/screen_flow.mermaid |
+| 2 | 設計仕様書としてMarkdownに書き出し、UIの見た目はモックで合意する | draft-design-spec | docs/design-spec.md, docs/screen_flow.mermaid, docs/mocks/(UIのみ) |
 | 3 | 開発着手できる技術ドキュメント一式に変換 | draft-playbook | docs/01_prd.md ほかPlaybook 6点 |
 | 4 | 実装エージェントに渡すコンテキストとステップ別プロンプトを作成 | draft-prep | CLAUDE.md, docs/claude-code-prompts.md, scripts/doc-lint.sh |
 | 5 | プロンプト集を順に実行して動くアプリを完成 | draft-implement | 動作するコード |
@@ -139,7 +139,7 @@ Phase 5以降のプロジェクトでは、現在地の診断に加えてドキ�
 Phase 0        Phase 1              Phase 2               Phase 3               Phase 4        Phase 5
 concept.md -> brainstorm-notes.md -> design-spec.md    -> 01_prd.md            -> CLAUDE.md  -> code
                                      screen_flow.mermaid  02-01_system-design      claude-code-prompts.md
-                                                          02-02_feature-design
+                                     mocks/(UIのみ)       02-02_feature-design
                                                           03_dev-setup
                                                           04_deployment
                                                           05_operation

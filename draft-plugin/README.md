@@ -11,7 +11,7 @@
 | `/draft:guide` | — | 全体像の説明と現在フェーズの診断、次のスキルの案内 | なし |
 | `/draft:concept` | Phase 0 | 対話でコンセプトを言語化 | `docs/concept.md` |
 | `/draft:brainstorm` | Phase 1 | 壁打ち（スコープ・画面・ロール・フローを選択式で具体化） | `docs/brainstorm-notes.md` |
-| `/draft:design-spec` | Phase 2 | 設計仕様書の作成 | `docs/design-spec.md`, `docs/screen_flow.mermaid` |
+| `/draft:design-spec` | Phase 2 | 設計仕様書の作成(UIの見た目はモックで合意) | `docs/design-spec.md`, `docs/screen_flow.mermaid`, `docs/mocks/`(UIのみ) |
 | `/draft:playbook` | Phase 3 | 技術スタック確定 + 開発ドキュメント7点セット生成 | `docs/01_prd.md` 〜 `docs/06_design-tokens.json`, `docs/README.md`, `.github/PULL_REQUEST_TEMPLATE.md` |
 | `/draft:prep` | Phase 4 | 実装準備（コンテキスト + ステップ別プロンプト + 検出点） | `CLAUDE.md`, `docs/claude-code-prompts.md`, `scripts/doc-lint.sh` |
 | `/draft:implement` | Phase 5 | プロンプト集から1ステップ実装 + 動作確認(全ステップを人手を挟まず消化する無人ループも持つ) | 実装コード |
