@@ -100,8 +100,8 @@ fdds() { ls -1 "$FEATURES"/*.md 2>/dev/null | grep -v '/README\.md$' | sort; }
 fdd_implemented() {
   local hits
   hits=$(git log --format=%H -- "$1" 2>/dev/null \
-    | while read -r c; do git diff-tree --no-commit-id --name-only -r "$c" < /dev/null; done \
-    | grep -v "^${FEATURES}/" | head -1)
+    | while read -r c; do git -c core.quotePath=false diff-tree --no-commit-id --name-only -r "$c" < /dev/null; done \
+    | grep -v "^$(git rev-parse --show-prefix)${FEATURES}/" | head -1)
   [ -n "$hits" ]
 }
 
@@ -183,9 +183,8 @@ cleanup() {
 }
 
 # 標準入力から利用上限のメッセージを抜き出す(無ければ何も出さない)。
-# stream-json では "text":"..." の中に入るので、引用符の内側だけを取る。
 limit_message() {
-  grep -oiE "[^\"]*(${LIMIT_PATTERN})[^\"]*" | tail -n 1 | cut -c1-200
+  grep -iE "${LIMIT_PATTERN}" | tail -n 1 | cut -c1-200
 }
 
 # 上限メッセージからリセット時刻("resets 8:20pm (Asia/Tokyo)" 等)を読み、
@@ -341,6 +340,57 @@ elif last_kind == "tool_use":
 EOF
 }
 
+# セッション自身の発話を出す。ログには、セッションが読んだファイルの中身も入っている。
+# そこに上限の文言や停止の行があっても(この駆動スクリプト自身を読んだときなど)、発話ではない。
+# 引数が limit のときは、エラーで終わったときの最後の発話だけを出す。上限はエラーとして終わる。
+# text 出力のログは、全体が発話である。
+session_said() {
+  if ! command -v python3 >/dev/null 2>&1; then
+    tail -c 65536 "$SESSION_LOG"
+    return 0
+  fi
+  python3 - "$SESSION_LOG" "${1:-}" <<'EOF'
+import json, sys
+
+texts = []
+failed = False
+plain = []
+try:
+    fh = open(sys.argv[1], encoding="utf-8", errors="replace")
+except OSError:
+    sys.exit(0)
+with fh:
+    for line in fh:
+        line = line.strip()
+        if not line:
+            continue
+        if not line.startswith("{"):
+            plain.append(line)
+            continue
+        try:
+            ev = json.loads(line)
+        except ValueError:
+            continue
+        if ev.get("parent_tool_use_id"):
+            continue
+        if ev.get("type") == "assistant":
+            msg = ev.get("message") or {}
+            text = "\n".join(c.get("text", "") for c in msg.get("content", [])
+                             if c.get("type") == "text")
+            if text.strip():
+                texts.append(text)
+                failed = msg.get("model") == "<synthetic>"
+        elif ev.get("type") == "result":
+            if isinstance(ev.get("result"), str) and ev["result"].strip():
+                texts.append(ev["result"])
+            failed = failed or bool(ev.get("is_error"))
+
+if sys.argv[2] == "limit":
+    texts = texts[-1:] if failed else []
+print("\n".join(texts + plain))
+EOF
+}
+
 # 1ステップを新しいセッションで実行する。claude の終了コードを返す。
 # 出力は $SESSION_LOG にも落とす(利用上限のメッセージを走行後に読むため)。
 run_step() {
@@ -419,6 +469,10 @@ case "$MODE" in
     ;;
 esac
 
+case "$MAX_ITER" in
+  *[!0-9]*) log "DRAFT_LOOP_MAX_ITER は0以上の整数で指定してください: ${MAX_ITER}"; exit 1 ;;
+esac
+
 SESSION_LOG="$(mktemp "${TMPDIR:-/tmp}/draft-loop.XXXXXX")" || { log "一時ファイルを作れません。"; exit 1; }
 
 if git rev-parse --git-dir >/dev/null 2>&1; then
@@ -440,7 +494,7 @@ preflight_review
 prev_target=""
 repeat=0
 
-for (( iter = 1; iter <= MAX_ITER; iter++ )); do
+for (( iter = 1; ; iter++ )); do
   blocked="$(first_blocked)"
   if [ -n "$blocked" ]; then
     log "保留で停止: $(label_of "$blocked")"
@@ -455,6 +509,12 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
       *)         log "全ステップが done です。Phase 5 完了。" ;;
     esac
     exit 0
+  fi
+
+  # 完了と保留の後に見る。先に見ると、最後の反復で全部終わっても上限の扱いになる。
+  if [ "$iter" -gt "$MAX_ITER" ]; then
+    log "反復の上限 (${MAX_ITER}) に到達しました。残りを確認してから再実行してください。"
+    exit 4
   fi
 
   label="$(label_of "$target")"
@@ -499,23 +559,10 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
 
   after="$(status_of "$target")"
 
-  # 上限で落ちた反復は「進捗を書かずに終わった」に数えない。待って同じステップを再開する。
-  if [ -z "$after" ]; then
-    limit="$(tail -c 65536 "$SESSION_LOG" 2>/dev/null | limit_message)"
-    if [ -n "$limit" ]; then
-      log "利用上限で中断: ${label} ($(elapsed))"
-      limit_hold "$limit"
-      iter=$(( iter - 1 ))
-      repeat=$(( repeat - 1 ))
-      continue
-    fi
-  fi
-
   # iteration には状態欄が無い。人の判断が要って止まった反復は理由を1行で宣言するので、
-  # それを走行ログから拾う。宣言が無いまま閉じなかった反復は、上の停滞判定に回る。
+  # それを発話から拾う(行頭にあるものだけ。決まりの引用は除く)。宣言が無いまま閉じなかった反復は、上の停滞判定に回る。
   if [ "$MODE" = iteration ] && [ -z "$after" ]; then
-    stop="$(tail -c 65536 "$SESSION_LOG" 2>/dev/null \
-      | grep -oE 'DRAFT-LOOP-STOP:[^"\\]*' | tail -n 1)"
+    stop="$(session_said | sed -n '/DRAFT-LOOP-STOP: *<理由>/d; s/^[[:space:][:punct:]]*\(DRAFT-LOOP-STOP:.*\)/\1/p' | tail -n 1)"
     if [ -n "$stop" ]; then
       KEEP_LOG=1
       log "保留で停止: ${label} ($(elapsed))"
@@ -523,6 +570,18 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
       log "停止したセッションの全出力: $SESSION_LOG"
       log "人の判断を入れてから再実行してください。"
       exit 2
+    fi
+  fi
+
+  # 上限で落ちた反復は「進捗を書かずに終わった」に数えない。待って同じステップを再開する。
+  if [ -z "$after" ]; then
+    limit="$(session_said limit | limit_message)"
+    if [ -n "$limit" ]; then
+      log "利用上限で中断: ${label} ($(elapsed))"
+      limit_hold "$limit"
+      iter=$(( iter - 1 ))
+      repeat=$(( repeat - 1 ))
+      continue
     fi
   fi
 
@@ -535,6 +594,3 @@ for (( iter = 1; iter <= MAX_ITER; iter++ )); do
               log "このセッションの全出力: $SESSION_LOG" ;;
   esac
 done
-
-log "反復の上限 (${MAX_ITER}) に到達しました。残りを確認してから再実行してください。"
-exit 4

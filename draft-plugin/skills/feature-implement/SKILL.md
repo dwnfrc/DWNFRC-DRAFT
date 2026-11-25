@@ -20,8 +20,8 @@ description: "DRAFTフレームワークのイテレーション後半(FDDの実
    # 出力が空でなければ実装済み。grep の終了コードは実装や対話シェルによって読み違えやすいので、
    # 出力そのもので判定する(この形なら手で確かめても結果が変わらない)。
    git log --format=%H -- "$fdd" \
-     | while read -r c; do git diff-tree --no-commit-id --name-only -r "$c" < /dev/null; done \
-     | grep -v '^docs/features/' | head -1
+     | while read -r c; do git -c core.quotePath=false diff-tree --no-commit-id --name-only -r "$c" < /dev/null; done \
+     | grep -v "^$(git rev-parse --show-prefix)docs/features/" | head -1
    ```
 2. `docs/02-01_system-design-doc.md`(System Design Doc)。FDDとの整合確認に必須
 

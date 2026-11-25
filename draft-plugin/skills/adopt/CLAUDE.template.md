@@ -48,9 +48,9 @@
 
 ## Docs
 
-Detailed specifications are in `docs/`. This file and `docs/claude-code-prompts.md` are derived from `docs/` — if they disagree, `docs/` is the source of truth:
+Detailed specifications are in `docs/`. This file and `docs/claude-code-prompts.md` are derived from `docs/`. If they disagree, `docs/` is the source of truth:
 
-- docs/{設計仕様書ファイル名}: Product design, UX, layout system, data model
+- docs/{設計仕様書ファイル名}: Product design, UX, layout system
 - docs/01_prd.md: User stories, KPI, scope
 - docs/02-01_system-design-doc.md: Architecture, ADRs, API design, DB schema
 - docs/02-02_feature-design-doc.md: Template for change-cycle FDDs

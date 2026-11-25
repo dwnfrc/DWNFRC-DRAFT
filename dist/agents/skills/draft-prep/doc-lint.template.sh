@@ -27,9 +27,13 @@ staged_checks() {
 
   # 1. 追加行の先送りマーカー
   #    規律文がマーカー名に言及するファイル(CLAUDE.md・prompts.md・このスクリプト)だけを除外する。
-  #    PRD/FDD等のドキュメントに残った未記入のTODOは検出対象
+  #    PRD/FDD等のドキュメントに残った未記入のTODOは検出対象。
+  #    ロックファイルも除外する。人が書く行が無く、ハッシュがたまたま XXX などを含む。
+  #    語として一致させ、mktemp の XXXXXX や HACKY のような語中は拾わない。grep -w は使わない。
+  #    UTF-8では日本語の文字も語の一部とみなすため、「TODOを」のように日本語に接したマーカーを見逃す。
   hits=$(added_lines . ':(exclude)CLAUDE.md' ':(exclude)docs/claude-code-prompts.md' ':(exclude)docs/_adopt-survey.md' ':(exclude)scripts/doc-lint.sh' \
-    | grep -E 'TODO|FIXME|HACK|XXX' || true)
+    ':(exclude)*.lock' ':(exclude)*.lockb' ':(exclude)*-lock.json' ':(exclude)*-lock.yaml' ':(exclude)*go.sum' \
+    | grep -E '(^|[^A-Za-z0-9_])(TODO|FIXME|HACK|XXX)([^A-Za-z0-9_]|$)' || true)
   if [ -n "$hits" ]; then
     finding '追加行に先送りマーカー(TODO/FIXME/HACK/XXX)がある:'
     printf '%s\n' "$hits" | head -20
@@ -68,8 +72,9 @@ staged_checks() {
 
   # 5-1. 本文中のem dash。「ラベル: 説明」の形に書く。
   #      見出しでタイトルとサブタイトルを分けるダッシュと、表の「該当なし」を示す単独のダッシュは別の用法なので除く。
+  #      隣り合う「該当なし」のセル（`| — | — |`）は区切りの | を共有するので、1つずつ繰り返して消す。
   em=$(printf '%s\n' "$md" | grep -v '^[[:space:]]*#' \
-    | sed 's/|[[:space:]]*—[[:space:]]*|/| |/g' | grep -- '—' || true)
+    | sed -e ':a' -e 's/|[[:space:]]*—[[:space:]]*|/| |/' -e 'ta' | grep -- '—' || true)
   if [ -n "$em" ]; then
     finding '追加行の本文にem dashがある。読点・括弧・文の分割か「ラベル: 説明」に置き換える:'
     printf '%s\n' "$em" | head -10

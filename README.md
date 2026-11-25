@@ -596,18 +596,12 @@ Feature Design Docができたら、同じセッションで続けて実装プ�
 
 ```
 docs/
-├── 設計仕様書.md
-├── 01_prd.md
-├── 02-01_system-design-doc.md
 ├── 02-02_feature-design-doc.md        ← テンプレート（空のまま残す）
-├── features/                           ← 実際のFeature Design Docs（時系列順）
-│   ├── 20260310-0918_notification.md
-│   ├── 20260310-1446_email-digest.md
-│   ├── 20260318-1103_social-ranking.md
-│   └── 20260401-1427_ai-scoring.md
-├── 03_dev-setup.md
-├── 04_deployment-procedure.md
-└── 05_operation-runbook.md
+└── features/                           ← 実際のFeature Design Docs（時系列順）
+    ├── 20260310-0918_notification.md
+    ├── 20260310-1446_email-digest.md
+    ├── 20260318-1103_social-ranking.md
+    └── 20260401-1427_ai-scoring.md
 ```
 
 ### Tips

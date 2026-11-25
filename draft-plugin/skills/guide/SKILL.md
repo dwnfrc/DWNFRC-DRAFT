@@ -55,7 +55,7 @@ Phase 5完了後 → イテレーション(変更サイクル):
 | 0 | コンセプトを1ページで言語化 | /draft:concept | docs/concept.md |
 | 1 | 壁打ちで画面とフローが見えるレベルに具体化 | /draft:brainstorm | docs/brainstorm-notes.md |
 | 2 | 設計仕様書としてMarkdownに書き出し、UIの見た目はモックで合意する | /draft:design-spec | docs/design-spec.md, docs/screen_flow.mermaid, docs/mocks/(UIのみ) |
-| 3 | 開発着手できる技術ドキュメント一式に変換 | /draft:playbook | docs/01_prd.md ほかPlaybook 6点 |
+| 3 | 開発着手できる技術ドキュメント一式に変換 | /draft:playbook | docs/01_prd.md ほかPlaybook 7点 |
 | 4 | 実装エージェントに渡すコンテキストとステップ別プロンプトを作成 | /draft:prep | CLAUDE.md, docs/claude-code-prompts.md, scripts/doc-lint.sh |
 | 5 | プロンプト集を順に実行して動くアプリを完成 | /draft:implement | 動作するコード |
 | イテレーション(設計) | 変更の設計(FDD要否判定→規模判定→壁打ち→Feature Design Doc作成) | /draft:feature | docs/features/YYYYMMDD-HHMM_{機能名}.md |
@@ -145,6 +145,7 @@ concept.md -> brainstorm-notes.md -> design-spec.md    -> 01_prd.md            -
                                                           03_dev-setup
                                                           04_deployment
                                                           05_operation
+                                                          06_design-tokens
 
 イテレーション(Phase 5後、繰り返し):
 着想 -> 壁打ち -> docs/features/YYYYMMDD-HHMM_{機能名}.md -> 実装プロンプト -> 実装 -> ソースDoc更新
@@ -162,7 +163,7 @@ concept.md -> brainstorm-notes.md -> design-spec.md    -> 01_prd.md            -
 - Phase 0 → /draft:concept: コンセプトを1ページで言語化する
 - Phase 1 → /draft:brainstorm: 壁打ちで画面とフローを具体化する
 - Phase 2 → /draft:design-spec: 設計仕様書をMarkdownに書き出す
-- Phase 3 → /draft:playbook: 開発ドキュメント一式(Playbook 6点)を作成する
+- Phase 3 → /draft:playbook: 開発ドキュメント一式(Playbook 7点)を作成する
 - Phase 4 → /draft:prep: CLAUDE.mdとステップ別プロンプト集を作成する
 - Phase 5 → /draft:implement: プロンプト集を順に実行して実装する
 - イテレーション(設計) → /draft:feature: 変更の壁打ちとFDD作成を行う(FDD要否の判定を含む)
